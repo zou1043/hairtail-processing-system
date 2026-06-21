@@ -1,0 +1,227 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>鱼类工作站</title><style>
+html, body {
+    width:100% !important; max-width:100% !important; min-width:100% !important;
+    margin:0 !important; padding:0 !important; overflow-x:hidden !important;
+    background:#0b1120;
+    font-family:"PingFang SC","Microsoft YaHei",sans-serif;
+}
+body, .nicegui-content, .q-page, .q-page-container, .q-layout, .q-layout-container {
+    width:100% !important; max-width:100% !important; min-width:100% !important;
+    margin:0 !important; padding:0 !important; overflow-x:hidden !important;
+    box-sizing:border-box !important;
+}
+.nicegui-content > div { width:100% !important; max-width:100% !important; }
+.m-tabs {
+    width:100%; box-sizing:border-box;
+    display:flex; overflow-x:auto; background:#1a2540;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    scrollbar-width:none; position:sticky; top:0; z-index:100;
+}
+.m-tabs::-webkit-scrollbar { display:none; }
+.m-tab {
+    flex:0 0 auto; padding:11px 16px; font-size:13px; font-weight:500;
+    color:rgba(255,255,255,0.45); white-space:nowrap;
+    border:none; background:transparent; appearance:none; -webkit-appearance:none;
+    border-bottom:2px solid transparent; cursor:pointer; touch-action:manipulation;
+}
+.m-tab.active { color:#38bdf8; border-bottom-color:#38bdf8; }
+.m-page { display:none; width:100%; box-sizing:border-box; padding:12px 12px 90px; background:#f8fafc; min-height:calc(100vh - 110px); }
+.m-page.active { display:block; }
+.mc { background:#fff; border:0.5px solid #e2e8f0; border-radius:14px; padding:14px; margin-bottom:12px; }
+.mc-title { font-size:13px; font-weight:500; color:#0f172a; margin-bottom:10px; }
+.m-chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+.m-chip { font-size:11px; font-weight:500; padding:4px 10px; border-radius:999px; color:#fff; }
+.m-metrics { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+.m-metric { background:#fff; border:0.5px solid #e2e8f0; border-radius:12px; padding:10px 12px; }
+.m-metric .ml { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:.04em; margin-bottom:2px; }
+.m-metric .mv { font-size:20px; font-weight:500; color:#0f172a; line-height:1.1; }
+.m-metric .ms { font-size:10px; color:#94a3b8; margin-top:2px; }
+.m-btn-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.m-btn { padding:14px 8px; border-radius:12px; border:none; cursor:pointer; font-size:13px; font-weight:500; display:flex; flex-direction:column; align-items:center; gap:5px; transition:opacity .1s; }
+.m-btn:active { opacity:.75; }
+.m-btn .bi { font-size:20px; }
+.m-btn-full { width:100%; padding:15px; border-radius:12px; border:none; font-size:14px; font-weight:500; cursor:pointer; margin-bottom:8px; transition:opacity .1s; }
+.m-btn-full:active { opacity:.75; }
+.btn-sky{background:#0ea5e9;color:#fff}.btn-green{background:#22c55e;color:#fff}.btn-orange{background:#f97316;color:#fff}.btn-slate{background:#e2e8f0;color:#334155}.btn-teal{background:#14b8a6;color:#fff}.btn-violet{background:#8b5cf6;color:#fff}.btn-red{background:#dc2626;color:#fff}.btn-amber{background:#d97706;color:#fff}
+.m-param { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:0.5px solid #f1f5f9; font-size:12px; gap:10px; }
+.m-param:last-child { border-bottom:none; }
+.m-param .pl { color:#64748b; }
+.m-param .pv { background:#f1f5f9; border-radius:8px; padding:4px 10px; font-size:12px; font-weight:500; color:#0f172a; cursor:pointer; min-width:56px; text-align:center; border:none; }
+.m-param .pv:hover { background:#e2e8f0; }
+.m-task-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:0.5px solid #f1f5f9; font-size:12px; color:#334155; gap:10px; }
+.m-task-row:last-child { border-bottom:none; }
+.m-badge { font-size:10px; padding:2px 7px; border-radius:999px; font-weight:500; }
+.badge-head { background:#fef3c7; color:#92400e; }
+.badge-body { background:#dcfce7; color:#166534; }
+.m-log { background:#020617; border-radius:10px; padding:8px 10px; height:120px; overflow:auto; }
+.m-log-line { font-size:10px; color:#34d399; font-family:monospace; line-height:1.65; }
+.m-limits { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+.m-limit { flex:1 1 calc(50% - 8px); background:#f1f5f9; border-radius:10px; padding:9px 11px; }
+.m-limit .ll { font-size:10px; color:#64748b; margin-bottom:2px; }
+.m-limit .lv { font-size:13px; font-weight:500; color:#0f172a; }
+.m-stop-bar { width:100%; box-sizing:border-box; position:fixed; bottom:0; left:0; right:0; background:rgba(11,17,32,.96); padding:10px 14px 14px; z-index:200; backdrop-filter:blur(6px); }
+.m-stop-btn { width:100%; padding:16px; background:#dc2626; color:#fff; border:none; border-radius:14px; font-size:15px; font-weight:600; letter-spacing:.02em; cursor:pointer; }
+.m-video-wrap { background:#020617; border-radius:12px; overflow:hidden; margin-bottom:10px; aspect-ratio:4/3; }
+.m-video-wrap img { width:100%; height:100%; object-fit:contain; display:block; }
+.m-toggle { display:flex; justify-content:space-between; align-items:center; }
+.m-toggle-label { font-size:12px; color:#334155; }
+.m-sub { font-size:11px; color:#94a3b8; margin-bottom:8px; }
+.m-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:500; display:none; align-items:flex-end; }
+.m-overlay.active { display:flex; }
+.m-dialog { background:#fff; border-radius:20px 20px 0 0; padding:20px; width:100%; box-sizing:border-box; }
+.m-dialog h3 { font-size:15px; font-weight:500; margin:0 0 14px; }
+.m-dialog input { width:100%; padding:12px; font-size:16px; border:0.5px solid #e2e8f0; border-radius:10px; box-sizing:border-box; margin-bottom:12px; }
+.m-dialog-btns { display:flex; gap:8px; }
+.m-dialog-btns button { flex:1; padding:12px; border-radius:10px; border:none; font-size:14px; font-weight:500; cursor:pointer; }
+.m-mini-input { width:72px; font-size:13px; padding:8px; border-radius:8px; border:0.5px solid #cbd5e1; box-sizing:border-box; }
+.m-inline-btn { padding:8px 12px; border-radius:8px; border:none; font-size:12px; cursor:pointer; }
+</style><script>function mSwitchTab(idx){document.querySelectorAll('.m-tab').forEach(function(t,i){t.classList.toggle('active',i===idx)});document.querySelectorAll('.m-page').forEach(function(p,i){p.classList.toggle('active',i===idx)})}document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-mtab]').forEach(function(el){var idx=Number(el.getAttribute('data-mtab'));['click','touchend'].forEach(function(evt){el.addEventListener(evt,function(e){e.preventDefault();mSwitchTab(idx)},{passive:false})})})})</script></head><body>
+<div style="background:#1a2540;padding:10px 14px 6px;display:flex;justify-content:space-between;align-items:center;"><div style="color:#fff;font-size:15px;font-weight:500;">鱼类工作站</div><div style="display:flex;gap:6px;align-items:center;"><span id="chip-hw" style="font-size:10px;font-weight:500;padding:3px 8px;border-radius:999px;color:#fff;background:#7f1d1d;">硬件离线</span><span id="chip-vis" style="font-size:10px;font-weight:500;padding:3px 8px;border-radius:999px;color:#fff;background:#475569;">视觉未启动</span></div></div>
+<div class="m-tabs" id="m-tabs"><button type="button" class="m-tab active" data-mtab="0">加工</button><button type="button" class="m-tab" data-mtab="1">视觉</button><button type="button" class="m-tab" data-mtab="2">参数</button><button type="button" class="m-tab" data-mtab="3">调试</button><button type="button" class="m-tab" data-mtab="4">历史</button><button type="button" class="m-tab" data-mtab="5">状态</button></div>
+<div>
+<div class="m-page active"><div class="m-chips" style="margin-top:12px;"><span id="chip-mode" style="font-size:11px;font-weight:500;padding:4px 10px;border-radius:999px;color:#fff;background:#475569;">手动模式</span><span id="chip-job" style="font-size:11px;font-weight:500;padding:4px 10px;border-radius:999px;color:#fff;background:#475569;">任务待机</span></div>
+<div class="m-metrics"><div class="m-metric"><div class="ml">最近总长</div><div id="metric-len" class="mv">-- cm</div><div id="metric-det-time" class="ms">--</div></div><div class="m-metric"><div class="ml">当前重量</div><div id="metric-weight" class="mv">-- g</div><div class="ms">轮询更新</div></div><div class="m-metric"><div class="ml">首段参考长度</div><div id="metric-head" class="mv">-- mm</div><div id="metric-remain" class="ms">--</div></div><div class="m-metric"><div class="ml">丝杠位置</div><div id="metric-pos" class="mv">0.00 mm</div><div id="metric-job-state" class="ms">待机</div></div></div>
+<div class="mc"><div class="mc-title">主操作</div><div class="m-btn-grid"><button id="btn-snapshot" class="m-btn btn-sky" style="font-size:14px;">📷 连拍测长</button><button id="btn-dispatch-start" class="m-btn btn-green" style="font-size:14px;">▶ 下发并启动</button><button id="btn-generate" class="m-btn btn-slate" style="font-size:14px;">📋 生成处理任务</button><button id="btn-weight" class="m-btn btn-teal" style="font-size:14px;">⚖ 读取重量</button></div></div>
+<div class="mc"><div class="mc-title">任务进度</div><div class="m-task-row"><span>任务状态</span><span id="job-state" style="color:#0ea5e9;font-weight:500;font-size:12px;">待机</span></div><div class="m-task-row"><span>任务进度</span><span id="job-progress" style="font-size:12px;">--</span></div><div class="m-task-row"><span>最近结果</span><span id="job-result" style="font-size:12px;">--</span></div><div class="m-task-row"><span>自动状态</span><span id="auto-state" style="font-size:11px;color:#64748b;">待机</span></div></div>
+</div>
+<div class="m-page" style="padding-top:12px;"><div class="mc" style="padding:10px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div class="mc-title" style="margin-bottom:0;">视觉画面</div><span id="preview-badge" style="font-size:10px;color:#94a3b8;">等待连接</span></div><div class="m-video-wrap"><img id="video-stream" src="/api/video_feed" alt="video stream" style="width:100%;height:100%;object-fit:contain;"></div><div style="font-size:10px;color:#64748b;margin-bottom:10px;">手机端通过 MJPEG 直接查看实时画面，避免 WebSocket 断连刷新。</div><div class="m-btn-grid"><button id="btn-start-vision" class="m-btn btn-sky" style="font-size:13px;">▶ 启动视觉</button><button id="btn-stop-vision" class="m-btn btn-slate" style="font-size:13px;">■ 停止视觉</button><button id="btn-live-overlay" class="m-btn btn-violet" style="font-size:13px;">🎨 实时渲染：关</button><button id="btn-snapshot-vision" class="m-btn btn-teal" style="font-size:13px;">📷 连拍测长</button><button id="btn-estop-vision" class="m-btn btn-orange" style="font-size:13px;">⛔ 全局急停</button><button id="btn-generate-vision" class="m-btn btn-slate" style="font-size:13px;">📋 生成处理任务</button><button id="btn-dispatch-vision" class="m-btn btn-green" style="font-size:13px;">▶ 下发并启动</button></div></div><div class="mc"><div class="mc-title">识别结果</div><div id="live-result" style="font-size:30px;font-weight:500;color:#0f172a;margin-bottom:4px;">--</div><div id="live-detail" style="font-size:11px;color:#64748b;">等待连拍结果</div><div id="live-weight" style="font-size:12px;color:#0ea5e9;margin-top:6px;">重量：--</div></div><div class="mc"><div class="mc-title">快照与状态</div><div class="m-task-row"><span>最近快照</span><span id="snap-time" style="font-size:12px;">--</span></div><div class="m-task-row"><span>最近长度</span><span id="snap-length" style="font-size:12px;">--</span></div><div class="m-task-row"><span>系统状态</span><span id="vision-general-status" style="font-size:12px;">--</span></div><img id="latest-snapshot-img" src="/api/latest_snapshot" alt="快照" style="display:block;width:100%;border-radius:10px;margin-top:10px;background:#020617;border:0.5px solid #e2e8f0;"></div></div>
+<div class="m-page" style="padding-top:12px;"><div class="mc"><div class="mc-title">任务策略</div><div style="display:flex;gap:8px;margin-bottom:10px;"><button id="cut-mode-fixed" class="m-inline-btn" style="flex:1;padding:9px;border-radius:9px;font-size:12px;background:#0ea5e9;color:#fff;">固定长度</button><button id="cut-mode-avg" class="m-inline-btn" style="flex:1;padding:9px;border-radius:9px;font-size:12px;background:#f1f5f9;color:#334155;">平均分段</button></div><div class="m-param"><span class="pl">固定每段长度(mm)</span><button class="pv config-edit" data-field="fixed_length_mm" data-label="固定每段长度(mm)" data-type="int" data-min="1" data-max="500">60</button></div><div class="m-param"><span class="pl">平均分几段</span><button class="pv config-edit" data-field="avg_parts_count" data-label="平均分几段" data-type="int" data-min="1" data-max="20">4</button></div><div class="m-param"><span class="pl">语音播报</span><button id="voice-toggle" class="pv">开启</button></div></div>
+<div class="mc"><div class="mc-title">传送 / 刷鳞</div><div class="m-param"><span class="pl">传送带速度</span><button class="pv config-edit" data-field="auto_speed" data-label="传送带速度" data-type="int" data-min="0" data-max="100">70</button></div><div class="m-param"><span class="pl">刷鳞速度</span><button class="pv config-edit" data-field="cut_motor_speed" data-label="刷鳞速度" data-type="int" data-min="0" data-max="100">85</button></div><div class="m-param"><span class="pl">终点停留延时 (ms)</span><button class="pv config-edit" data-field="cut_time_ms" data-label="终点停留延时 (ms)" data-type="int" data-min="100" data-max="5000">1200</button></div><div class="m-param"><span class="pl">刀片物理偏移量 (mm)</span><button class="pv config-edit" data-field="blade_offset_mm" data-label="刀片物理偏移量 (mm)" data-type="float" data-min="0" data-max="200">45.0</button></div><div class="m-param"><span class="pl">挡板稳定(ms)</span><button class="pv config-edit" data-field="settle_ms" data-label="挡板稳定(ms)" data-type="int" data-min="0" data-max="2000">200</button></div></div>
+<div class="mc"><div class="mc-title">分拣机构 / 舵机</div><div class="m-param"><span class="pl">分拣停留(ms)</span><button class="pv config-edit" data-field="sort_hold_ms" data-label="分拣停留(ms)" data-type="int" data-min="0" data-max="3000">600</button></div><div class="m-param"><span class="pl">回中位稳定(ms)</span><button class="pv config-edit" data-field="center_hold_ms" data-label="回中位稳定(ms)" data-type="int" data-min="0" data-max="2000">250</button></div><div class="m-param"><span class="pl">排料运行(ms)</span><button class="pv config-edit" data-field="eject_ms" data-label="排料运行(ms)" data-type="int" data-min="0" data-max="10000">2000</button></div><div class="m-param"><span class="pl">舵机1中位(°)</span><button class="pv config-edit" data-field="servo_center" data-label="舵机1中位(°)" data-type="int" data-min="0" data-max="180">90</button></div><div class="m-param"><span class="pl">舵机1左分拣位(°)</span><button class="pv config-edit" data-field="servo_head" data-label="舵机1左分拣位(°)" data-type="int" data-min="0" data-max="180">0</button></div><div class="m-param"><span class="pl">舵机1右分拣位(°)</span><button class="pv config-edit" data-field="servo_body" data-label="舵机1右分拣位(°)" data-type="int" data-min="0" data-max="180">180</button></div></div>
+<div class="mc"><div class="mc-title">自动触发</div><div class="m-param"><span class="pl">稳定帧数</span><button class="pv config-edit" data-field="stable_frames" data-label="稳定帧数" data-type="int" data-min="1" data-max="10">3</button></div><div class="m-param"><span class="pl">长度容差(cm)</span><button class="pv config-edit" data-field="tolerance" data-label="长度容差(cm)" data-type="float" data-min="0.1" data-max="10">1.0</button></div><div class="m-param"><span class="pl">冷却时间(s)</span><button class="pv config-edit" data-field="cooldown" data-label="冷却时间(s)" data-type="float" data-min="0.5" data-max="30">2.0</button></div><div class="m-param"><span class="pl">丢失帧数</span><button class="pv config-edit" data-field="absent_frames" data-label="丢失帧数" data-type="int" data-min="3" data-max="30">8</button></div><div class="m-param"><span class="pl">自动模式</span><button id="auto-toggle" class="pv">关闭</button></div></div>
+<div class="mc"><div class="mc-title">任务与称重</div><div id="task-summary" style="font-size:11px;color:#64748b;margin-bottom:8px;">请先测长再生成处理任务</div><div id="task-container"></div><button id="btn-apply-config" class="m-btn-full btn-sky">应用参数到下一次下发</button><button id="btn-generate-config" class="m-btn-full btn-sky">生成处理任务</button><button id="btn-dispatch-only" class="m-btn-full btn-violet">下发任务</button><button id="btn-dispatch-start-config" class="m-btn-full btn-green">下发并启动</button><button id="btn-clear-tasks" class="m-btn-full btn-slate">清空任务表</button><button id="btn-reset-config" class="m-btn-full btn-red">恢复默认参数</button><div class="m-btn-grid"><button id="btn-weight-params" class="m-btn btn-teal" style="font-size:13px;">⚖ 读取重量</button><button id="btn-tare" class="m-btn btn-orange" style="font-size:13px;">◎ 称重去皮</button></div></div></div>
+<div class="m-page" style="padding-top:12px;"><div class="mc"><div class="mc-title">M1 / M2 联调</div><div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;"><span style="font-size:12px;color:#64748b;white-space:nowrap;">速度 (-100~100)</span><input id="all-speed-input" class="m-mini-input" type="number" value="60" min="-100" max="100"></div><div class="m-btn-grid"><button id="btn-all-forward" class="m-btn btn-green" style="font-size:13px;">▶ 全部正转</button><button id="btn-all-reverse" class="m-btn btn-orange" style="font-size:13px;">↺ 全部反转</button><button id="btn-all-stop" class="m-btn btn-slate" style="grid-column:span 2;font-size:13px;">■ 全部停止</button></div></div>
+<div class="mc"><div class="mc-title">单电机控制</div><div id="motor-list"></div></div>
+<div class="mc"><div class="mc-title">丝杠</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><button class="m-inline-btn btn-slate step-preset" data-value="5">5mm</button><button class="m-inline-btn btn-slate step-preset" data-value="10">10mm</button><button class="m-inline-btn btn-slate step-preset" data-value="20">20mm</button><button class="m-inline-btn btn-slate step-preset" data-value="50">50mm</button></div><div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;"><span style="font-size:12px;color:#64748b;">位移(mm)</span><input id="step-distance-input" class="m-mini-input" type="number" value="10" step="0.01"></div><div class="m-btn-grid"><button id="btn-step-forward" class="m-btn btn-green" style="font-size:13px;">→ 前进</button><button id="btn-step-backward" class="m-btn btn-orange" style="font-size:13px;">← 后退</button><button id="btn-home-stepper" class="m-btn btn-sky" style="font-size:13px;">⌂ 物理回零</button><button id="btn-step-zero" class="m-btn btn-slate" style="font-size:13px;">◎ 当前设零</button><button id="btn-goto-zero" class="m-btn btn-violet" style="grid-column:span 2;font-size:13px;">🎯 回到设定零点</button></div></div>
+<div class="mc"><div class="mc-title">舵机1 / 分拣</div><div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;"><span style="font-size:12px;color:#64748b;">舵机1角度(0-180)</span><input id="servo-angle-input" class="m-mini-input" type="number" value="90" min="0" max="180"><button id="btn-servo-angle" class="m-inline-btn btn-sky">执行</button></div><div class="m-btn-grid"><button id="btn-servo-center" class="m-btn btn-slate" style="font-size:12px;">中位</button><button id="btn-servo-head" class="m-btn btn-orange" style="font-size:12px;">左分拣位</button><button id="btn-servo-body" class="m-btn btn-teal" style="font-size:12px;">右分拣位</button><button id="btn-feed-stop" class="m-btn btn-violet" style="font-size:12px;">传送到挡板</button></div></div>
+<div class="mc"><div class="mc-title">切割机构控制台</div><div class="m-btn-grid"><button id="btn-cut-test" class="m-btn btn-orange" type="button" style="font-size:12px;" onclick="postAction('/api/action/cut_test')">横切测试</button><button id="btn-cut-home" class="m-btn btn-slate" type="button" style="font-size:12px;" onclick="postAction('/api/action/cut_home')">刀头复位</button><button id="btn-cut-forward" class="m-btn btn-sky" type="button" style="font-size:12px;" onclick="postAction('/api/action/cut_forward')">向右正转</button><button id="btn-cut-reverse" class="m-btn btn-teal" type="button" style="font-size:12px;" onclick="postAction('/api/action/cut_reverse')">向左反转</button></div></div>
+<div class="mc"><div class="mc-title">限位状态</div><div class="m-limits"><div class="m-limit"><div class="ll">回零限位</div><div id="debug-limit1" class="lv">--</div></div><div class="m-limit"><div class="ll">挡板限位</div><div id="debug-limit2" class="lv">--</div></div><div class="m-limit"><div class="ll">切割起点 D9</div><div id="debug-cut-start" class="lv">--</div></div><div class="m-limit"><div class="ll">切割终点 A2</div><div id="debug-cut-end" class="lv">--</div></div></div><div class="m-btn-grid"><button id="btn-refresh-limits" class="m-btn btn-slate" style="font-size:12px;">刷新限位</button><button id="btn-eject-tail" class="m-btn btn-amber" style="font-size:12px;">排料运行</button></div></div></div>
+<div class="m-page" style="padding-top:12px;"><div class="m-metrics"><div class="m-metric"><div class="ml">记录数</div><div id="hist-records" class="mv">0</div></div><div class="m-metric"><div class="ml">平均长度</div><div id="hist-average" class="mv">0.0 cm</div></div><div class="m-metric"><div class="ml">最大长度</div><div id="hist-max" class="mv">0.0 cm</div></div><div class="m-metric"><div class="ml">自动执行</div><div id="hist-auto-runs" class="mv">0</div></div></div><div class="mc"><div class="mc-title">识别历史</div><div id="history-container"></div><button id="btn-clear-history" class="m-btn-full btn-slate">清空记录</button></div><div class="mc"><div class="mc-title">任务预览</div><div id="history-task-summary" style="font-size:11px;color:#64748b;margin-bottom:8px;">暂无任务</div><div id="history-task-container"></div></div><div class="mc"><div class="mc-title">运行日志</div><div id="log-container" class="m-log"></div></div></div>
+<div class="m-page" style="padding-top:12px;"><div class="m-metrics"><div class="m-metric"><div class="ml">记录数</div><div id="stat-records" class="mv">0</div></div><div class="m-metric"><div class="ml">平均长度</div><div id="stat-avg" class="mv">0.0 cm</div></div><div class="m-metric"><div class="ml">最大长度</div><div id="stat-max" class="mv">0.0 cm</div></div><div class="m-metric"><div class="ml">运行时长</div><div id="stat-uptime" class="mv">00:00:00</div></div></div><div class="mc"><div class="mc-title">串口 / 机构</div><div class="m-param"><span class="pl">连接端口</span><span id="status-port" class="pv" style="background:transparent;">--</span></div><div class="m-param"><span class="pl">连接状态</span><span id="status-conn" style="font-size:12px;font-weight:500;color:#dc2626;">离线</span></div><div class="m-param"><span class="pl">操作权</span><span id="status-lock" style="font-size:12px;font-weight:500;color:#0f766e;">空闲</span></div><div class="m-param"><span class="pl">丝杠位置</span><span id="status-pos" class="pv" style="background:transparent;">0.00 mm</span></div><div class="m-param"><span class="pl">树莓派状态</span><span id="status-hw" style="font-size:12px;font-weight:500;">--</span></div><div class="m-param" style="flex-direction:column; align-items:flex-start; gap:8px; border-top:0.5px solid #f1f5f9; margin-top:4px; padding-top:10px;"><div style="width:100%; display:flex; justify-content:space-between; align-items:center;"><span class="pl">内存占比 (8GB)</span><span id="m-mem-text" style="font-size:14px; font-weight:600; color:#0ea5e9;">--%</span></div><div style="width:100%; height:6px; background:#e2e8f0; border-radius:999px; overflow:hidden;"><div id="m-mem-bar" style="height:100%; width:0%; background:linear-gradient(90deg, #10b981, #0ea5e9); border-radius:999px; transition:width 0.5s ease;"></div></div></div></div><div class="mc"><div class="mc-title">最近串口消息</div><div id="last-serial-line" style="font-size:11px;color:#64748b;font-family:monospace;">--</div></div><div class="mc"><div class="mc-title">维护操作</div><div class="m-btn-grid"><button id="btn-reconnect" class="m-btn btn-slate" style="font-size:12px;">重连硬件</button><button id="btn-query-job" class="m-btn btn-slate" style="font-size:12px;">查询任务</button></div></div></div></div>
+<div id="edit-overlay" class="m-overlay"><div class="m-dialog"><h3 id="edit-title">编辑参数</h3><input id="edit-input" type="number"><div class="m-dialog-btns"><button id="edit-cancel" style="background:#f1f5f9;color:#334155;">取消</button><button id="edit-confirm" style="background:#0ea5e9;color:#fff;">确认</button></div></div></div>
+<div class="m-stop-bar"><button id="btn-estop" class="m-stop-btn">⛔ 全局急停</button></div>
+<script>
+const S={logs:[]};let C={};let E=null;let H=0;let videoReconnectTimer=null;const MISSING_EL={style:{},dataset:{},classList:{add(){},remove(){},toggle(){}},addEventListener(){},focus(){},value:'',textContent:'',innerHTML:'',className:'',onclick:null};function $(id){return document.getElementById(id)||(['servo2-angle-input','btn-servo2-angle','btn-servo2-down-preset','btn-servo2-up-preset'].includes(id)?MISSING_EL:null)}
+function setChip(el,t,c){el.textContent=t;el.style.background=c;el.style.color='#fff'}
+function formatWeight(w){if(w===null||w===undefined||w<=0)return'--';if(w>=1000)return(w/1000).toFixed(2)+' kg';return Number(w).toFixed(1)+' g'}
+function formatTime(ts){if(!ts)return'--';const d=new Date(ts*1000);return Number.isNaN(d.getTime())?'--':d.toLocaleTimeString('zh-CN',{hour12:false})}
+function formatLimit(v){if(v===null||v===undefined)return'--';return v?'触发':'未触发'}
+function formatDuration(s){s=Math.max(0,Math.floor(s||0));const h=String(Math.floor(s/3600)).padStart(2,'0');const m=String(Math.floor((s%3600)/60)).padStart(2,'0');const sec=String(s%60).padStart(2,'0');return `${h}:${m}:${sec}`}
+function syncInputValue(id,value){const el=$(id);if(!el||value===undefined||value===null)return;if(document.activeElement===el)return;el.value=String(value)}
+async function postAction(url,body){const o={method:'POST',headers:{}};if(body!==undefined){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body)}const finalUrl=url+(url.includes('?')?'&':'?')+'client=手机';try{await fetch(finalUrl,o);setTimeout(refreshStatus,250)}catch(err){console.error(err)}}
+function reconnectVideoStream(delayMs=1200){if(videoReconnectTimer)clearTimeout(videoReconnectTimer);videoReconnectTimer=setTimeout(()=>{const videoStream=$('video-stream');if(!videoStream)return;videoStream.src='/api/video_feed?t='+Date.now()},delayMs)}
+function hydrate(d){if(Date.now()<H)return;C={cut_mode:d.cut_mode||'fixed',voice_broadcast:!!d.voice_broadcast,fixed_length_mm:d.fixed_length_mm??60,avg_parts_count:d.avg_parts_count??4,auto_speed:d.auto_speed??70,stable_frames:d.stable_frames??3,absent_frames:d.absent_frames??8,tolerance:d.tolerance??1,cooldown:d.cooldown??2,settle_ms:d.settle_ms??200,sort_hold_ms:d.sort_hold_ms??600,center_hold_ms:d.center_hold_ms??250,eject_ms:d.eject_ms??2000,cut_time_ms:d.cut_time_ms??1200,blade_offset_mm:d.blade_offset_mm??45.0,servo_center:d.servo_center??90,servo_head:d.servo_head??0,servo_body:d.servo_body??180,servo2_down:d.servo2_down??0,servo2_up:d.servo2_up??180,cut_motor_speed:d.cut_motor_speed??85,auto_enabled:!!d.auto_enabled};renderConfig()}
+function renderConfig(){document.querySelectorAll('.config-edit').forEach(el=>{const f=el.dataset.field;if(C[f]!==undefined)el.textContent=C[f]});$('voice-toggle').textContent=C.voice_broadcast?'开启':'关闭';$('auto-toggle').textContent=C.auto_enabled?'开启':'关闭';$('cut-mode-fixed').style.background=C.cut_mode==='fixed'?'#0ea5e9':'#f1f5f9';$('cut-mode-fixed').style.color=C.cut_mode==='fixed'?'#fff':'#334155';$('cut-mode-avg').style.background=C.cut_mode==='avg'?'#0ea5e9':'#f1f5f9';$('cut-mode-avg').style.color=C.cut_mode==='avg'?'#fff':'#334155';if($('btn-servo2-down-preset'))$('btn-servo2-down-preset').textContent=`下压预设 ${C.servo2_down??0}°`;if($('btn-servo2-up-preset'))$('btn-servo2-up-preset').textContent=`抬起预设 ${C.servo2_up??180}°`}
+function renderTasks(id,tasks){const c=$(id);c.innerHTML='';if(!tasks||!tasks.length){c.innerHTML='<div style="font-size:11px;color:#94a3b8;">暂无任务</div>';return}tasks.forEach(t=>{const row=document.createElement('div');row.className='m-task-row';row.innerHTML=`<span>${t.idx}</span><span class="m-badge ${t.tag==='HEAD'?'badge-head':'badge-body'}">${t.kind}</span><span>${Number(t.len_mm).toFixed(2)} mm</span>`;c.appendChild(row)})}
+function renderHistory(rows){const c=$('history-container');c.innerHTML='';if(!rows||!rows.length){c.innerHTML='<div style="font-size:11px;color:#94a3b8;">暂无识别记录</div>';return}rows.forEach(r=>{const row=document.createElement('div');row.className='m-task-row';row.innerHTML=`<span style="font-size:11px;color:#94a3b8;">${r.time}</span><span style="font-size:12px;font-weight:500;">${r.length}</span><span style="font-size:11px;color:#64748b;">${r.source}</span>`;c.appendChild(row)})}
+function pushLog(m){if(!m)return;if(S.logs[S.logs.length-1]===m)return;S.logs.push(m);if(S.logs.length>20)S.logs.shift();$('log-container').innerHTML=S.logs.map(x=>`<div class="m-log-line">${x}</div>`).join('')}
+function openEdit(btn){E={field:btn.dataset.field,type:btn.dataset.type,min:Number(btn.dataset.min),max:Number(btn.dataset.max),label:btn.dataset.label};$('edit-title').textContent=E.label;$('edit-input').value=C[E.field];$('edit-input').step=E.type==='float'?'0.1':'1';$('edit-overlay').classList.add('active');$('edit-input').focus()}
+function closeEdit(){$('edit-overlay').classList.remove('active');E=null}
+async function refreshStatus(){
+try{
+const r=await fetch('/api/status',{cache:'no-store'});
+const d=await r.json();
+hydrate(d);
+setChip($('chip-hw'),d.serial_connected?'硬件 在线':'硬件 离线',d.serial_connected?'#0f766e':'#7f1d1d');
+setChip($('chip-vis'),d.vision_running?'视觉 运行中':'视觉 未启动',d.vision_running?'#1d4ed8':'#475569');
+setChip($('chip-mode'),d.auto_enabled?'自动模式':'手动模式',d.auto_enabled?'#0284c7':'#475569');
+let jt='任务 待机',jc='#475569';
+if(d.job_running){
+jt='任务 执行中';
+jc='#d97706';
+}else if(d.job_progress_text&&d.job_progress_text!=='--'){
+jt='任务 准备中';
+jc='#0ea5e9';
+}
+setChip($('chip-job'),jt,jc);
+$('metric-len').textContent=d.last_detected_length>0?d.last_detected_length.toFixed(1)+' cm':'-- cm';
+$('metric-det-time').textContent=formatTime(d.last_detection_at);
+$('metric-weight').textContent=formatWeight(d.current_weight_g);
+$('metric-head').textContent=d.current_head_mm>0?Number(d.current_head_mm).toFixed(1)+' mm':'-- mm';
+$('metric-remain').textContent=d.current_remain_mm>0?`余${Number(d.current_remain_mm).toFixed(0)} mm`:'--';
+$('metric-pos').textContent=Number(d.current_pos_mm||0).toFixed(2)+' mm';
+$('metric-job-state').textContent=d.job_state_text||'待机';
+$('job-state').textContent=d.job_state_text||'--';
+$('job-progress').textContent=d.job_progress_text||'--';
+$('job-result').textContent=d.job_result_text||'--';
+$('auto-state').textContent=d.auto_state_text||'--';
+const mainDetail=$('main-detail');
+if(mainDetail)mainDetail.textContent=d.general_status||'--';
+$('preview-badge').textContent=d.vision_running?'视频在线':'等待连接';
+$('live-result').textContent=d.live_result_text||'--';
+$('live-detail').textContent=d.live_detail_text||'--';
+$('live-weight').textContent='重量：'+formatWeight(d.current_weight_g);
+$('snap-time').textContent=formatTime(d.last_snapshot_time);
+$('snap-length').textContent=d.last_snapshot_length>0?Number(d.last_snapshot_length).toFixed(1)+' cm':'--';
+$('vision-general-status').textContent=d.general_status||'--';
+if($('btn-live-overlay')){
+$('btn-live-overlay').textContent=d.live_overlay_enabled?'🎨 实时渲染：开':'🎨 实时渲染：关';
+$('btn-live-overlay').dataset.enabled=d.live_overlay_enabled?'1':'0';
+}
+const summary=d.generated_tasks&&d.generated_tasks.length?`总长${Number(d.current_total_mm||0).toFixed(0)}mm，首段${Number(d.current_head_mm||0).toFixed(0)}mm，共${d.generated_tasks.length}步`:'请先测长再生成处理任务';
+$('task-summary').textContent=summary;
+$('history-task-summary').textContent=summary;
+renderTasks('task-container',d.generated_tasks);
+renderTasks('history-task-container',d.generated_tasks);
+$('debug-limit1').textContent=formatLimit(d.limit_home_state);
+$('debug-limit2').textContent=formatLimit(d.limit_stop_state);
+$('hist-records').textContent=d.record_count||0;
+$('hist-average').textContent=Number(d.average_length||0).toFixed(1)+' cm';
+$('hist-max').textContent=Number(d.max_detected_length||0).toFixed(1)+' cm';
+$('hist-auto-runs').textContent=d.auto_runs_count||0;
+renderHistory(d.measurement_rows||[]);
+$('stat-records').textContent=d.record_count||0;
+$('stat-avg').textContent=Number(d.average_length||0).toFixed(1)+' cm';
+$('stat-max').textContent=Number(d.max_detected_length||0).toFixed(1)+' cm';
+$('stat-uptime').textContent=formatDuration((Date.now()/1000)-(d.session_started_at||Date.now()/1000));
+$('status-port').textContent=d.serial_port||'--';
+$('status-conn').textContent=d.serial_connected?'在线':'离线';
+$('status-conn').style.color=d.serial_connected?'#0f766e':'#dc2626';
+$('status-pos').textContent=Number(d.current_pos_mm||0).toFixed(2)+' mm';
+const cpuValue=Number(d.cpu_percent||0).toFixed(0);
+const memValue=Number(d.mem_percent||0).toFixed(0);
+const tempRaw=Number(d.cpu_temp||0);
+$('status-hw').textContent=`CPU ${cpuValue}% | Mem ${memValue}% | Temp ${tempRaw>0?`${tempRaw.toFixed(1)}°C`:'--'}`;
+$('status-hw').style.color=tempRaw>=80?'#ef4444':'#0f766e';
+if(d.motor1_speed===d.motor2_speed)syncInputValue('all-speed-input',d.motor1_speed);
+syncInputValue('motor-speed-1',d.motor1_speed);
+syncInputValue('motor-speed-2',d.motor2_speed);
+syncInputValue('servo-angle-input',d.servo_angle_deg);
+syncInputValue('servo2-angle-input',d.servo2_angle_deg);
+if($('m-mem-text')){
+$('m-mem-text').textContent=memValue+'%';
+$('m-mem-bar').style.width=memValue+'%';
+$('m-mem-bar').style.background=memValue>80?'linear-gradient(90deg, #f59e0b, #ef4444)':'linear-gradient(90deg, #10b981, #0ea5e9)';
+}
+$('last-serial-line').textContent=d.last_serial_line||'--';
+const h=d.op_lock_holder||'';
+if(!h){
+$('status-lock').textContent='空闲';
+$('status-lock').style.color='#0f766e';
+}else if(h==='API'){
+$('status-lock').textContent='本机持有';
+$('status-lock').style.color='#0ea5e9';
+}else{
+$('status-lock').textContent=h;
+$('status-lock').style.color='#d97706';
+}
+if(d.recent_logs){
+S.logs=d.recent_logs;
+$('log-container').innerHTML=S.logs.map(x=>`<div class="m-log-line">${x}</div>`).join('');
+}
+const snapImg=$('latest-snapshot-img');
+if(snapImg&&d.last_snapshot_time){
+    const cacheKey=String(d.last_snapshot_time);
+    if(snapImg.dataset.cacheKey!==cacheKey){
+        snapImg.dataset.cacheKey=cacheKey;
+        snapImg.src='/api/latest_snapshot?t='+cacheKey;
+    }
+}
+}catch(err){console.error(err)}
+}
+function bind(){document.querySelectorAll('.config-edit').forEach(btn=>btn.addEventListener('click',()=>openEdit(btn)));$('edit-cancel').onclick=closeEdit;$('edit-confirm').onclick=function(){if(!E)return;let v=$('edit-input').value;v=E.type==='float'?parseFloat(v||'0'):parseInt(v||'0',10);if(Number.isNaN(v))v=E.min;v=Math.max(E.min,Math.min(E.max,v));C[E.field]=v;H=Date.now()+3000;renderConfig();closeEdit()};$('edit-overlay').addEventListener('click',e=>{if(e.target===$('edit-overlay'))closeEdit()});$('voice-toggle').onclick=()=>{C.voice_broadcast=!C.voice_broadcast;H=Date.now()+3000;renderConfig()};$('auto-toggle').onclick=()=>{C.auto_enabled=!C.auto_enabled;H=Date.now()+3000;renderConfig()};$('cut-mode-fixed').onclick=()=>{C.cut_mode='fixed';H=Date.now()+3000;renderConfig()};$('cut-mode-avg').onclick=()=>{C.cut_mode='avg';H=Date.now()+3000;renderConfig()};$('btn-apply-config').onclick=()=>postAction('/api/config/update',C);$('btn-generate-config').onclick=()=>postAction('/api/action/generate_tasks');$('btn-dispatch-only').onclick=async()=>{await postAction('/api/config/update',C);await postAction('/api/action/dispatch_only')};$('btn-dispatch-start-config').onclick=async()=>{await postAction('/api/config/update',C);await postAction('/api/action/dispatch_start')};$('btn-clear-tasks').onclick=()=>postAction('/api/action/clear_tasks');$('btn-reset-config').onclick=async()=>{if(!window.confirm('确认恢复默认参数吗？当前自定义参数将被覆盖。'))return;await postAction('/api/action/reset_config');setTimeout(()=>window.location.reload(),1000)};$('btn-weight-params').onclick=()=>postAction('/api/action/query_weight');$('btn-tare').onclick=()=>postAction('/api/action/tare');$('btn-snapshot').onclick=()=>postAction('/api/action/snapshot');$('btn-dispatch-start').onclick=async()=>{await postAction('/api/config/update',C);await postAction('/api/action/dispatch_start')};$('btn-generate').onclick=()=>postAction('/api/action/generate_tasks');$('btn-weight').onclick=()=>postAction('/api/action/query_weight');$('btn-start-vision').onclick=()=>postAction('/api/action/start_vision');$('btn-stop-vision').onclick=()=>postAction('/api/action/stop_vision');$('btn-live-overlay').onclick=()=>postAction('/api/action/set_live_overlay',{enabled:$('btn-live-overlay').dataset.enabled!=='1'});$('btn-snapshot-vision').onclick=()=>postAction('/api/action/snapshot');$('btn-estop-vision').onclick=()=>postAction('/api/action/estop');$('btn-generate-vision').onclick=()=>postAction('/api/action/generate_tasks');$('btn-dispatch-vision').onclick=async()=>{await postAction('/api/config/update',C);await postAction('/api/action/dispatch_start')};$('btn-estop').onclick=()=>postAction('/api/action/estop');$('btn-clear-history').onclick=()=>postAction('/api/action/clear_measurements');$('btn-reconnect').onclick=()=>postAction('/api/action/reconnect');$('btn-query-job').onclick=()=>postAction('/api/action/query_job_status');$('btn-all-forward').onclick=()=>postAction('/api/action/run_all_motors',{speed:parseInt($('all-speed-input').value||'0',10)});$('btn-all-reverse').onclick=()=>postAction('/api/action/run_all_motors',{speed:-Math.abs(parseInt($('all-speed-input').value||'0',10))});$('btn-all-stop').onclick=()=>postAction('/api/action/run_all_motors',{speed:0});$('btn-step-forward').onclick=()=>postAction('/api/action/move_stepper',{distance_mm:parseFloat($('step-distance-input').value||'0')});$('btn-step-backward').onclick=()=>postAction('/api/action/move_stepper',{distance_mm:-Math.abs(parseFloat($('step-distance-input').value||'0'))});$('btn-home-stepper').onclick=()=>postAction('/api/action/home_stepper');$('btn-step-zero').onclick=()=>postAction('/api/action/set_stepper_zero');$('btn-goto-zero').onclick=()=>postAction('/api/action/goto_zero');document.querySelectorAll('.step-preset').forEach(btn=>btn.onclick=()=>{$('step-distance-input').value=btn.dataset.value});$('btn-servo-angle').onclick=()=>postAction('/api/action/set_servo_angle',{angle:parseInt($('servo-angle-input').value||'90',10)});$('btn-servo2-angle').onclick=()=>postAction('/api/action/set_servo2_angle',{angle:parseInt($('servo2-angle-input').value||'180',10)});$('btn-servo-center').onclick=()=>postAction('/api/action/send_servo_named',{name:'CENTER'});$('btn-servo-head').onclick=()=>postAction('/api/action/send_servo_named',{name:'HEAD'});$('btn-servo-body').onclick=()=>postAction('/api/action/send_servo_named',{name:'BODY'});$('btn-servo2-down-preset').onclick=()=>{$('servo2-angle-input').value=String(C.servo2_down??0)};$('btn-servo2-up-preset').onclick=()=>{$('servo2-angle-input').value=String(C.servo2_up??180)};$('btn-feed-stop').onclick=()=>postAction('/api/action/feed_until_stop');$('btn-refresh-limits').onclick=()=>postAction('/api/action/query_limits');$('btn-eject-tail').onclick=()=>postAction('/api/action/eject_tail');const videoStream=$('video-stream');if(videoStream){videoStream.onerror=()=>reconnectVideoStream(1200);videoStream.onload=()=>{if(videoReconnectTimer){clearTimeout(videoReconnectTimer);videoReconnectTimer=null;}}}const ml=$('motor-list');for(let i=1;i<=2;i++){const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:8px;';const motorName=i===1?'刷鳞':'传送带';row.innerHTML=`<span style="font-size:13px;font-weight:500;color:#334155;width:72px;">M${i} ${motorName}</span><input id="motor-speed-${i}" class="m-mini-input" type="number" value="0" min="-100" max="100"><button class="m-inline-btn btn-sky" data-motor="${i}" data-action="run" style="flex:1;">启动</button><button class="m-inline-btn btn-slate" data-motor="${i}" data-action="stop">停</button>`;ml.appendChild(row)}ml.addEventListener('click',function(e){const t=e.target;if(!t.dataset||!t.dataset.motor)return;const m=parseInt(t.dataset.motor,10);const inp=$(`motor-speed-${m}`);const speed=t.dataset.action==='stop'?0:parseInt(inp.value||'0',10);if(t.dataset.action==='stop')inp.value='0';postAction('/api/action/send_motor',{motor_index:m,speed:speed})})}
+async function refreshCutSignals(){try{const res=await fetch('/api/status',{cache:'no-store'});const d=await res.json();$('debug-limit1').textContent=formatLimit(d.limit_home_state);$('debug-limit2').textContent=formatLimit(d.limit_stop_state);$('debug-cut-start').textContent=formatLimit(d.cut_start_state);$('debug-cut-end').textContent=formatLimit(d.cut_end_state)}catch(err){console.error(err)}}
+bind();refreshStatus();refreshCutSignals();setTimeout(refreshCutSignals,300);setInterval(refreshStatus,1500);setInterval(()=>setTimeout(refreshCutSignals,300),1500);
+</script></body></html>
+

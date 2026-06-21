@@ -1,0 +1,1933 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鱼类处理工作站 PC 端</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        :root {
+            --nav-width: 220px;
+            --topbar-height: 64px;
+            --footer-height: 76px;
+            --bg: #07111b;
+            --bg-soft: #0b1623;
+            --bg-panel: #101d2d;
+            --bg-panel-2: #15253a;
+            --line: rgba(148, 163, 184, 0.16);
+            --line-strong: rgba(148, 163, 184, 0.28);
+            --text: #e5eefb;
+            --muted: #8fa4bf;
+            --cyan: #22d3ee;
+            --cyan-strong: #0ea5e9;
+            --green: #22c55e;
+            --amber: #f59e0b;
+            --orange: #f97316;
+            --red: #ef4444;
+            --slate: #334155;
+            --shadow: 0 22px 60px rgba(2, 6, 23, 0.45);
+            --radius-xl: 24px;
+            --radius-lg: 18px;
+            --radius-md: 14px;
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; min-height: 100%; }
+        body {
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(34,211,238,0.10), transparent 26%),
+                radial-gradient(circle at bottom right, rgba(249,115,22,0.12), transparent 22%),
+                linear-gradient(180deg, #06101a 0%, #09131e 100%);
+            color: var(--text);
+            overflow: hidden;
+        }
+        button, input, select { font: inherit; }
+        .app {
+            display: grid;
+            grid-template-columns: var(--nav-width) minmax(0, 1fr);
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: linear-gradient(180deg, #081220 0%, #0d1a2a 100%);
+            border-right: 1px solid rgba(255,255,255,0.06);
+            padding: 18px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+            z-index: 20;
+        }
+        .brand {
+            padding: 14px 14px 10px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(14,165,233,0.18), rgba(20,184,166,0.12));
+            border: 1px solid rgba(34,211,238,0.15);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+        .brand-mark {
+            display: inline-flex;
+            width: 42px;
+            height: 42px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+            color: white;
+            font-weight: 900;
+            font-size: 1.2rem;
+            box-shadow: 0 14px 30px rgba(14,165,233,0.28);
+        }
+        .brand h1 {
+            margin: 12px 0 0;
+            font-size: 1.05rem;
+            line-height: 1.3;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+        .brand p {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .nav-btn {
+            width: 100%;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #c6d4e6;
+            padding: 14px 14px;
+            border-radius: 16px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: .15s ease;
+            font-weight: 700;
+        }
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(148,163,184,0.12);
+        }
+        .nav-btn.active {
+            background: linear-gradient(135deg, rgba(14,165,233,0.18), rgba(20,184,166,0.16));
+            border-color: rgba(34,211,238,0.22);
+            color: white;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        .nav-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.06);
+            color: #9cc8ff;
+            font-size: 1rem;
+            flex: 0 0 auto;
+        }
+        .nav-btn.active .nav-icon {
+            background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+            color: white;
+        }
+        .nav-meta {
+            margin-top: auto;
+            padding: 14px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(148,163,184,0.08);
+        }
+        .nav-meta h3 {
+            margin: 0 0 6px;
+            font-size: 0.92rem;
+        }
+        .nav-meta p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+        .main {
+            position: relative;
+            min-width: 0;
+            min-height: 100vh;
+        }
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: var(--nav-width);
+            right: 0;
+            height: var(--topbar-height);
+            background: rgba(8, 16, 28, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 22px 0 24px;
+            z-index: 40;
+        }
+        .topbar-title {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .topbar-title strong {
+            font-size: 1.08rem;
+            letter-spacing: -0.02em;
+        }
+        .topbar-title span {
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+        .status-leds {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .led-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #d7e4f6;
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+        .led {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            background: #475569;
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.04);
+        }
+        .led.green { background: var(--green); box-shadow: 0 0 14px rgba(34,197,94,0.8); }
+        .led.red { background: var(--red); box-shadow: 0 0 14px rgba(239,68,68,0.8); }
+        .led.orange { background: var(--amber); box-shadow: 0 0 14px rgba(245,158,11,0.8); }
+        .content {
+            height: 100vh;
+            overflow: auto;
+            padding: calc(var(--topbar-height) + 18px) 22px calc(var(--footer-height) + 20px);
+        }
+        .page {
+            display: none;
+            min-width: 0;
+        }
+        .page.active { display: block; }
+        .page-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        .dashboard-grid {
+            grid-template-columns: minmax(0, 1.6fr) minmax(360px, 0.95fr);
+            align-items: start;
+        }
+        .stack { display: grid; gap: 1rem; }
+        .card {
+            background: linear-gradient(180deg, rgba(16,29,45,0.95), rgba(13,24,38,0.96));
+            border: 1px solid var(--line);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 18px 0;
+        }
+        .card-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+        .card-note {
+            color: var(--muted);
+            font-size: 0.84rem;
+        }
+        .card-body { padding: 18px; }
+        .hero-card {
+            background: linear-gradient(135deg, rgba(14,165,233,0.18), rgba(20,184,166,0.14)), linear-gradient(180deg, #11263a 0%, #0f1e30 100%);
+        }
+        .hero-title {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+        }
+        .hero-sub {
+            margin-top: 8px;
+            color: #c4d8f0;
+            font-size: 0.94rem;
+            line-height: 1.6;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+        .hero-actions .btn { min-width: 140px; }
+        .btn {
+            border: none;
+            border-radius: 16px;
+            padding: 12px 16px;
+            font-size: 0.92rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .15s ease;
+            color: white;
+            box-shadow: 0 12px 28px rgba(2,6,23,0.24);
+        }
+        .btn:hover { transform: translateY(-1px); opacity: 0.96; }
+        .btn-sky { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
+        .btn-green { background: linear-gradient(135deg, #22c55e, #15803d); }
+        .btn-orange { background: linear-gradient(135deg, #fb923c, #ea580c); }
+        .btn-slate { background: linear-gradient(135deg, #334155, #1e293b); }
+        .btn-teal { background: linear-gradient(135deg, #14b8a6, #0f766e); }
+        .btn-violet { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .btn-red { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+        .btn-amber { background: linear-gradient(135deg, #f59e0b, #b45309); }
+        .btn-light { background: linear-gradient(135deg, #dbeafe, #cbd5e1); color: #0f172a; }
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        .metric-card {
+            padding: 16px 18px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+            border: 1px solid rgba(148,163,184,0.12);
+        }
+        .metric-label {
+            font-size: 0.76rem;
+            color: #8aa0bb;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+        .metric-value {
+            margin-top: 8px;
+            font-size: 2rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .metric-sub {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+        .video-card .card-body { padding-top: 12px; }
+        .video-box {
+            aspect-ratio: 16 / 9;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #020617;
+            border: 1px solid rgba(148,163,184,0.18);
+        }
+        .video-box img {
+            width: 100%; height: 100%; object-fit: contain; display: block;
+        }
+        .dashboard-subgrid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 1rem;
+        }
+        .gauge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        .gauge {
+            position: relative;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 22px;
+            background: radial-gradient(circle at top, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border: 1px solid rgba(148,163,184,0.12);
+        }
+        .gauge::before {
+            content: "";
+            width: 170px;
+            height: 170px;
+            border-radius: 999px;
+            background: conic-gradient(from 210deg, var(--gauge-color) calc(var(--gauge-pct) * 1%), rgba(51,65,85,0.28) 0);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+        }
+        .gauge::after {
+            content: "";
+            position: absolute;
+            width: 124px;
+            height: 124px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #111f31 0%, #0d1725 100%);
+            border: 1px solid rgba(148,163,184,0.1);
+        }
+        .gauge-content {
+            position: absolute;
+            text-align: center;
+            z-index: 2;
+        }
+        .gauge-label { color: #89a1bd; font-size: 0.82rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+        .gauge-value { margin-top: 8px; font-size: 2.2rem; font-weight: 900; line-height: 1; }
+        .gauge-unit { margin-top: 6px; color: var(--muted); font-size: 0.86rem; }
+        .status-list { display: grid; gap: 12px; }
+        .status-line { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(148,163,184,0.10); }
+        .status-line:last-child { border-bottom: none; }
+        .limit-dots { display:flex; gap:12px; flex-wrap:wrap; }
+        .limit-dot { display:flex; align-items:center; gap:8px; font-size:.86rem; color:#d8e5f7; }
+        .limit-light { width:12px; height:12px; border-radius:999px; background:#475569; box-shadow:0 0 0 3px rgba(255,255,255,.04); }
+        .limit-light.on { background: var(--green); box-shadow:0 0 12px rgba(34,197,94,.9); }
+        .progress-shell { margin-top: 14px; }
+        .progress-track { height: 12px; border-radius: 999px; background: rgba(51,65,85,0.58); overflow: hidden; border: 1px solid rgba(148,163,184,0.12); }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #0ea5e9, #22d3ee); border-radius: 999px; box-shadow: 0 0 18px rgba(34,211,238,0.32); }
+        .queue-table, .history-table {
+            width: 100%; border-collapse: collapse;
+        }
+        .queue-table th, .queue-table td, .history-table th, .history-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(148,163,184,0.10);
+            text-align: left;
+            font-size: 0.88rem;
+        }
+        .queue-table th, .history-table th { color: #8ea5c1; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; }
+        .badge { display:inline-flex; padding:4px 8px; border-radius:999px; font-size:.74rem; font-weight:800; }
+        .badge-head { background: rgba(245,158,11,0.18); color: #fbbf24; }
+        .badge-body { background: rgba(34,197,94,0.16); color: #4ade80; }
+        .table-wrap { overflow: auto; }
+        .history-table th { cursor: pointer; user-select: none; }
+        .history-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+        .compact-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; }
+        .param-list, .control-list { display: grid; gap: 10px; }
+        .param-row {
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(148,163,184,0.08);
+        }
+        .param-row span:first-child { color: #cdd9ea; }
+        .value-btn {
+            border: none; background: rgba(241,245,249,0.10); color: #f8fbff; border-radius: 12px; padding: 8px 14px; min-width: 72px; font-weight: 800; cursor: pointer;
+        }
+        .toggle-chip {
+            display: inline-flex; align-items: center; justify-content: center; min-width: 72px; padding: 8px 12px; border-radius: 12px; font-size: .84rem; font-weight: 800; border: none; cursor: pointer;
+        }
+        .motor-grid { display: grid; gap: 10px; }
+        .motor-row {
+            display: grid; grid-template-columns: 52px 92px minmax(0, 1fr) 82px; gap: 10px; align-items: center;
+            padding: 10px 12px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(148,163,184,0.08);
+        }
+        .num-input {
+            width: 100%; background: rgba(2,6,23,0.55); color: white; border: 1px solid rgba(148,163,184,0.20); border-radius: 12px; padding: 10px 12px;
+        }
+        .serial-log {
+            min-height: 220px; max-height: 320px; overflow: auto; border-radius: 18px; background: #020617; border: 1px solid rgba(148,163,184,0.10); padding: 12px 14px; color: #8bffcf; font-family: Consolas, "Courier New", monospace; font-size: 0.82rem; line-height: 1.65;
+        }
+        .serial-log div { white-space: pre-wrap; }
+        .footer-bar {
+            position: fixed; left: 0; right: 0; bottom: 0; height: var(--footer-height); background: linear-gradient(90deg, rgba(127,29,29,0.94), rgba(185,28,28,0.92)); border-top: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 22px 0 calc(var(--nav-width) + 22px); z-index: 50;
+        }
+        .footer-meta { color: rgba(255,255,255,0.82); font-size: 0.9rem; font-weight: 700; }
+        .footer-actions { display: flex; gap: 12px; }
+        .footer-actions .btn { min-width: 160px; }
+        .edit-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.58); display: none; align-items: center; justify-content: center; z-index: 100; }
+        .edit-overlay.active { display: flex; }
+        .edit-dialog { width: min(420px, calc(100vw - 32px)); background: linear-gradient(180deg, #15253a 0%, #101d2d 100%); border: 1px solid rgba(148,163,184,0.18); border-radius: 24px; box-shadow: var(--shadow); padding: 22px; }
+        .edit-dialog h3 { margin: 0 0 14px; font-size: 1.08rem; }
+        .edit-dialog input { width: 100%; background: rgba(2,6,23,0.55); color: white; border: 1px solid rgba(148,163,184,0.20); border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; }
+        @media (max-width: 1440px) {
+            .dashboard-grid, .dashboard-subgrid, .param-grid, .system-grid, .compact-grid { grid-template-columns: 1fr; }
+            .metrics-row, .stats-row { grid-template-columns: repeat(2, minmax(0,1fr)); }
+        }
+        @media (max-width: 1080px) {
+            body { overflow: auto; }
+            .app { grid-template-columns: 1fr; }
+            .sidebar { position: sticky; top: 0; z-index: 60; }
+            .topbar { left: 0; }
+            .content { padding-top: calc(var(--topbar-height) + 90px); }
+            .footer-bar { padding-left: 22px; }
+        }
+
+        /* 2026 Industrial Console Refresh */
+        :root {
+            --nav-width: 98px;
+            --topbar-height: 62px;
+            --footer-height: 86px;
+            --bg: #020617;
+            --bg-soft: #0b1120;
+            --bg-panel: #0f172a;
+            --bg-panel-2: #111827;
+            --line: rgba(148, 163, 184, 0.12);
+            --line-strong: rgba(148, 163, 184, 0.18);
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+        }
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(59,130,246,0.06), transparent 24%),
+                radial-gradient(circle at bottom right, rgba(16,185,129,0.04), transparent 20%),
+                linear-gradient(180deg, #020617 0%, #020817 100%);
+        }
+        .app { grid-template-columns: var(--nav-width) minmax(0, 1fr); }
+        .sidebar {
+            background: rgba(2, 6, 23, 0.9);
+            border-right: 1px solid rgba(148,163,184,0.10);
+            padding: 14px 10px;
+            gap: 14px;
+        }
+        .brand {
+            padding: 10px 8px;
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(148,163,184,0.10);
+            text-align: center;
+        }
+        .brand-mark {
+            width: 46px;
+            height: 46px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #1d4ed8, #0f766e);
+            box-shadow: none;
+        }
+        .brand h1 {
+            margin: 10px 0 0;
+            font-size: 0.8rem;
+            line-height: 1.35;
+        }
+        .brand p,
+        .nav-meta { display: none; }
+        .nav-btn {
+            padding: 12px 8px;
+            border-radius: 18px;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(148,163,184,0.08);
+        }
+        .nav-btn.active {
+            background: rgba(30, 41, 59, 0.96);
+            border-color: rgba(59,130,246,0.18);
+            box-shadow: inset 0 0 0 1px rgba(59,130,246,0.08);
+        }
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.04);
+            color: #cbd5e1;
+        }
+        .nav-btn.active .nav-icon {
+            background: rgba(29, 78, 216, 0.18);
+            color: #93c5fd;
+        }
+        .topbar {
+            left: var(--nav-width);
+            height: var(--topbar-height);
+            padding: 0 20px;
+            background: rgba(2, 6, 23, 0.92);
+            border-bottom: 1px solid rgba(148,163,184,0.10);
+            justify-content: space-between;
+        }
+        .topbar-title strong {
+            font-size: 1rem;
+            letter-spacing: 0;
+        }
+        .topbar-title span {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        .status-leds { display: none; }
+        .content {
+            padding: calc(var(--topbar-height) + 18px) 18px calc(var(--footer-height) + 18px);
+        }
+        .card {
+            background: linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.92));
+            border: 1px solid rgba(148,163,184,0.12);
+            box-shadow: var(--shadow);
+            border-radius: 22px;
+        }
+        .card-header {
+            padding: 16px 18px 0;
+        }
+        .card-title {
+            font-size: 0.98rem;
+            font-weight: 800;
+        }
+        .card-note {
+            color: #7f8ea3;
+            font-size: 0.82rem;
+        }
+        .card-body {
+            padding: 18px;
+        }
+        .btn {
+            border-radius: 16px;
+            padding: 12px 18px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            box-shadow: none;
+        }
+        .btn-sky { background: linear-gradient(180deg, #1d4ed8, #1e40af); }
+        .btn-green { background: linear-gradient(180deg, #15803d, #166534); }
+        .btn-orange { background: linear-gradient(180deg, #d97706, #b45309); }
+        .btn-slate { background: linear-gradient(180deg, #334155, #1e293b); }
+        .btn-teal { background: linear-gradient(180deg, #0f766e, #115e59); }
+        .btn-violet { background: linear-gradient(180deg, #312e81, #1e1b4b); }
+        .btn-red { background: linear-gradient(180deg, #b91c1c, #7f1d1d); }
+        .btn-amber { background: linear-gradient(180deg, #92400e, #78350f); }
+        .btn-light { background: linear-gradient(180deg, #1e293b, #0f172a); color: #e2e8f0; border: 1px solid rgba(148,163,184,0.14); }
+        .dashboard-grid,
+        .dashboard-shell {
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) minmax(320px, 1fr);
+            gap: 1rem;
+            align-items: start;
+        }
+        .monitor-column,
+        .status-column,
+        .stack {
+            display: grid;
+            gap: 1rem;
+        }
+        .monitor-strip {
+            display: grid;
+            gap: 16px;
+        }
+        .monitor-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .monitor-title {
+            margin: 0;
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        .monitor-subtitle,
+        #top-subtitle {
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .monitor-leds {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .led-item {
+            background: rgba(2,6,23,0.45);
+            border: 1px solid rgba(148,163,184,0.10);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #dbe3ef;
+        }
+        .led {
+            width: 10px;
+            height: 10px;
+            box-shadow: none;
+        }
+        .monitor-actions,
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 0;
+        }
+        .hero-actions .btn,
+        .monitor-actions .btn {
+            min-width: 132px;
+        }
+        .video-card .card-body,
+        .monitor-video .card-body {
+            padding-top: 14px;
+        }
+        .video-box {
+            aspect-ratio: 16 / 9;
+            border-radius: 20px;
+            background: #000;
+            border: 1px solid rgba(148,163,184,0.10);
+        }
+        .digital-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        .digital-card {
+            min-height: 220px;
+            padding: 24px 26px;
+            border-radius: 24px;
+            border: 1px solid rgba(148,163,184,0.12);
+            background:
+                linear-gradient(180deg, rgba(15,23,42,0.98), rgba(15,23,42,0.92)),
+                radial-gradient(circle at top left, rgba(59,130,246,0.08), transparent 40%);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .digital-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -15% -30% auto;
+            width: 220px;
+            height: 220px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(59,130,246,0.12), transparent 68%);
+            pointer-events: none;
+        }
+        .digital-card.weight-card::after {
+            background: radial-gradient(circle, rgba(34,197,94,0.10), transparent 68%);
+        }
+        .gauge,
+        .gauge::before,
+        .gauge::after {
+            all: unset;
+        }
+        .gauge-content {
+            position: relative;
+            z-index: 2;
+            text-align: left;
+        }
+        .gauge-label {
+            display: block;
+            color: #7f8ea3;
+            font-size: 0.82rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+        .gauge-value,
+        .digital-value {
+            display: block;
+            margin-top: 12px;
+            font-size: clamp(3.8rem, 5.2vw, 5.6rem);
+            line-height: 0.95;
+            font-weight: 900;
+            letter-spacing: -0.06em;
+            color: #f8fafc;
+        }
+        .gauge-unit {
+            margin-top: 10px;
+            color: #64748b;
+            font-size: 1rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+        .digital-meta {
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        .signal-card {
+            padding: 16px 18px;
+            border-radius: 18px;
+            background: rgba(15,23,42,0.94);
+            border: 1px solid rgba(148,163,184,0.10);
+            box-shadow: var(--shadow);
+        }
+        .signal-label {
+            color: #64748b;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+        .signal-value {
+            margin-top: 8px;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+        .signal-note {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .status-card-list {
+            display: grid;
+            gap: 10px;
+        }
+        .status-line {
+            padding: 12px 0;
+        }
+        .status-line strong {
+            font-size: 0.92rem;
+            text-align: right;
+        }
+        .metric-link-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(148,163,184,0.10);
+            font-size: 0.82rem;
+            color: #d7e0ec;
+            font-weight: 700;
+        }
+        .progress-shell { margin-top: 0; }
+        .progress-track {
+            height: 14px;
+            background: rgba(30,41,59,0.96);
+            border: 1px solid rgba(148,163,184,0.10);
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #1d4ed8, #0ea5e9);
+            box-shadow: none;
+        }
+        .limit-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .limit-box {
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(2,6,23,0.32);
+            border: 1px solid rgba(148,163,184,0.10);
+        }
+        .limit-light {
+            width: 12px;
+            height: 12px;
+            box-shadow: none;
+        }
+        .queue-table, .history-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .queue-table th, .queue-table td, .history-table th, .history-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid rgba(148,163,184,0.08);
+        }
+        .queue-table th, .history-table th {
+            position: sticky;
+            top: 0;
+            background: rgba(15,23,42,0.98);
+            z-index: 1;
+        }
+        .queue-table tbody tr:nth-child(even),
+        .history-table tbody tr:nth-child(even) {
+            background: rgba(255,255,255,0.015);
+        }
+        .table-wrap {
+            max-height: 560px;
+        }
+        .compact-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        .param-row,
+        .motor-row {
+            border-radius: 18px;
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(148,163,184,0.08);
+        }
+        .motor-row {
+            grid-template-columns: minmax(120px, 1.2fr) 100px 1fr auto;
+        }
+        .num-input,
+        .edit-dialog input {
+            background: rgba(2,6,23,0.72);
+            border-radius: 14px;
+            border: 1px solid rgba(148,163,184,0.16);
+        }
+        .debug-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        .debug-grid .wide {
+            grid-column: 1 / -1;
+        }
+        .debug-note {
+            color: #64748b;
+            font-size: 0.82rem;
+            line-height: 1.55;
+        }
+        .serial-log {
+            min-height: 340px;
+            max-height: 420px;
+            border-radius: 18px;
+            background: #020617;
+        }
+        .footer-bar {
+            height: var(--footer-height);
+            background: rgba(127,29,29,0.94);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 0 18px 0 calc(var(--nav-width) + 18px);
+        }
+        .footer-actions .btn {
+            min-width: 170px;
+            border-radius: 18px;
+        }
+        @media (max-width: 1400px) {
+            .dashboard-shell,
+            .dashboard-grid,
+            .debug-grid,
+            .compact-grid,
+            .page-grid {
+                grid-template-columns: 1fr;
+            }
+            .digital-grid,
+            .signal-grid,
+            .limit-grid,
+            .metrics-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 2026 Light One-Screen Refresh */
+        :root {
+            --bg: #f3f5f8;
+            --bg-soft: #f8fafc;
+            --bg-panel: #ffffff;
+            --bg-panel-2: #ffffff;
+            --line: rgba(148, 163, 184, 0.18);
+            --line-strong: rgba(148, 163, 184, 0.22);
+            --text: #1e293b;
+            --muted: #64748b;
+            --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+        body {
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            color: var(--text);
+        }
+        .sidebar {
+            background: #ffffff;
+            border-right: 1px solid rgba(148,163,184,0.16);
+            box-shadow: 6px 0 20px rgba(15,23,42,0.03);
+        }
+        .brand,
+        .nav-btn,
+        .nav-btn.active,
+        .topbar,
+        .card,
+        .digital-card,
+        .signal-card,
+        .param-row,
+        .motor-row,
+        .limit-box {
+            background: #ffffff;
+            color: var(--text);
+            border-color: rgba(148,163,184,0.16);
+            box-shadow: var(--shadow);
+        }
+        .brand h1,
+        .brand p,
+        .nav-btn,
+        .nav-icon,
+        .topbar-title strong,
+        .topbar-title span,
+        .card-title,
+        .signal-value,
+        .status-line strong,
+        .status-line span,
+        .param-row span:first-child,
+        .metric-value,
+        .metric-link-pill,
+        .gauge-value,
+        .gauge-unit,
+        .gauge-label,
+        .signal-label,
+        .card-note,
+        .metric-sub,
+        .digital-meta,
+        .monitor-subtitle,
+        .debug-note,
+        .queue-table td,
+        .history-table td,
+        .queue-table th,
+        .history-table th {
+            color: inherit;
+        }
+        .nav-btn { color: #334155; }
+        .nav-btn.active {
+            background: #eff6ff;
+            border-color: rgba(59,130,246,0.18);
+        }
+        .nav-icon {
+            background: #f1f5f9;
+            color: #475569;
+            box-shadow: none;
+        }
+        .nav-btn.active .nav-icon {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        .topbar {
+            background: rgba(255,255,255,0.92);
+            border-bottom: 1px solid rgba(148,163,184,0.16);
+            backdrop-filter: blur(12px);
+        }
+        .content {
+            overflow: hidden;
+            padding: calc(var(--topbar-height) + 14px) 14px calc(var(--footer-height) + 14px);
+        }
+        .page {
+            height: calc(100vh - var(--topbar-height) - var(--footer-height) - 28px);
+            overflow: hidden;
+        }
+        .dashboard-shell {
+            height: 100%;
+            grid-template-columns: minmax(0, 7fr) minmax(320px, 3fr);
+        }
+        .monitor-column,
+        .status-column,
+        .stack {
+            min-height: 0;
+            gap: 0.75rem;
+        }
+        .card-header {
+            padding: 12px 14px 0;
+        }
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 800;
+        }
+        .card-note,
+        .metric-sub,
+        .digital-meta,
+        .monitor-subtitle,
+        .signal-note {
+            color: #64748b;
+            font-size: 0.78rem;
+        }
+        .card-body {
+            padding: 14px;
+        }
+        .monitor-title {
+            font-size: 1.28rem;
+        }
+        .monitor-actions,
+        .hero-actions,
+        .inline-actions {
+            gap: 8px;
+        }
+        .btn {
+            border-radius: 14px;
+            padding: 9px 14px;
+            font-size: 0.84rem;
+            box-shadow: none;
+        }
+        .btn-sky { background: linear-gradient(180deg, #4f8ff7, #3b82f6); }
+        .btn-green { background: linear-gradient(180deg, #34b468, #16a34a); }
+        .btn-orange { background: linear-gradient(180deg, #f0a55f, #ea8c3c); }
+        .btn-slate { background: linear-gradient(180deg, #94a3b8, #64748b); }
+        .btn-teal { background: linear-gradient(180deg, #2cb5a5, #14b8a6); }
+        .btn-violet { background: linear-gradient(180deg, #7c8fd8, #6366f1); }
+        .btn-red { background: linear-gradient(180deg, #e56c6c, #dc2626); }
+        .btn-amber { background: linear-gradient(180deg, #d6a35d, #ca8a04); }
+        .btn-light {
+            background: linear-gradient(180deg, #f8fafc, #e2e8f0);
+            color: #1e293b;
+            border: 1px solid rgba(148,163,184,0.18);
+        }
+        .video-box {
+            aspect-ratio: 16 / 9;
+            border-radius: 18px;
+            background: #e5e7eb;
+            border: 1px solid rgba(148,163,184,0.16);
+        }
+        .digital-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+        .digital-card {
+            min-height: 150px;
+            padding: 18px 20px;
+            overflow: hidden;
+        }
+        .digital-card::after { display: none; }
+        .gauge,
+        .gauge-content { text-align: left; }
+        .gauge-label {
+            color: #64748b;
+            font-size: 0.74rem;
+            letter-spacing: 0.14em;
+        }
+        .gauge-value {
+            font-size: clamp(3.9rem, 5vw, 5rem);
+            line-height: 0.92;
+            color: #0f172a;
+        }
+        .gauge-unit {
+            color: #64748b;
+            font-size: 0.82rem;
+            margin-top: 8px;
+        }
+        .signal-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+        .signal-card {
+            padding: 12px 14px;
+        }
+        .signal-value {
+            margin-top: 6px;
+            font-size: 1rem;
+        }
+        .metric-link-pill {
+            background: #f8fafc;
+            border: 1px solid rgba(148,163,184,0.14);
+            color: #334155;
+            box-shadow: none;
+        }
+        .progress-track {
+            height: 10px;
+            background: #e2e8f0;
+            border-color: rgba(148,163,184,0.14);
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #60a5fa, #38bdf8);
+        }
+        .status-card-list,
+        .status-list,
+        .param-list,
+        .control-list {
+            gap: 8px;
+        }
+        .status-line {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(148,163,184,0.10);
+        }
+        .limit-grid {
+            gap: 8px;
+        }
+        .limit-box {
+            padding: 10px 12px;
+        }
+        .limit-light {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
+            background: #cbd5e1;
+        }
+        .limit-light.on {
+            background: #22c55e;
+            box-shadow: none;
+        }
+        .table-wrap {
+            max-height: 100%;
+            overflow: auto;
+        }
+        .queue-table,
+        .history-table {
+            background: #ffffff;
+        }
+        .queue-table th, .queue-table td, .history-table th, .history-table td {
+            padding: 10px 10px;
+            border-bottom: 1px solid rgba(148,163,184,0.10);
+        }
+        .queue-table th, .history-table th {
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.72rem;
+        }
+        .queue-table tbody tr:nth-child(even),
+        .history-table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .compact-grid,
+        .param-grid,
+        .debug-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+        .param-grid,
+        .debug-grid {
+            height: 100%;
+            align-items: stretch;
+        }
+        .param-grid .stack,
+        .debug-grid .stack {
+            grid-template-rows: repeat(2, minmax(0, 1fr));
+        }
+        .debug-grid .wide {
+            grid-column: auto;
+        }
+        .param-row {
+            padding: 9px 12px;
+            border-radius: 14px;
+        }
+        .value-btn,
+        .toggle-chip {
+            padding: 7px 11px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            background: #f8fafc;
+            color: #1e293b;
+            border: 1px solid rgba(148,163,184,0.14);
+        }
+        .motor-row {
+            grid-template-columns: minmax(116px, 1.2fr) 84px 1fr auto;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 14px;
+        }
+        .num-input,
+        .edit-dialog input {
+            background: #f8fafc;
+            color: #1e293b;
+            border: 1px solid rgba(148,163,184,0.14);
+            padding: 8px 10px;
+            border-radius: 10px;
+        }
+        .serial-log {
+            min-height: 460px;
+            max-height: none;
+            height: calc(100vh - var(--topbar-height) - var(--footer-height) - 110px);
+            background: #f8fafc;
+            color: #0f172a;
+            border: 1px solid rgba(148,163,184,0.14);
+            font-size: 0.78rem;
+        }
+        .footer-bar {
+            background: rgba(254, 242, 242, 0.96);
+            border-top: 1px solid rgba(239,68,68,0.12);
+        }
+        .footer-meta {
+            color: #7f1d1d;
+            font-size: 0.82rem;
+        }
+        .edit-overlay {
+            background: rgba(241,245,249,0.78);
+        }
+        .edit-dialog {
+            background: #ffffff;
+            border: 1px solid rgba(148,163,184,0.16);
+            color: #1e293b;
+        }
+        @media (max-width: 1400px) {
+            .dashboard-shell {
+                grid-template-columns: 1fr;
+            }
+            .page {
+                overflow: auto;
+            }
+        }
+
+        /* 2026 Three-Column No-Scroll Layout */
+        :root {
+            --topbar-height: 52px;
+            --footer-height: 72px;
+        }
+        html, body {
+            height: 100vh;
+            overflow: hidden;
+        }
+        body {
+            min-height: 100vh;
+        }
+        .app {
+            height: 100vh;
+            overflow: hidden;
+        }
+        .main {
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: var(--topbar-height) minmax(0, 1fr) var(--footer-height);
+            overflow: hidden;
+        }
+        .topbar {
+            position: relative;
+            left: auto;
+            right: auto;
+            top: auto;
+            height: var(--topbar-height);
+            padding: 0 14px;
+            z-index: 10;
+        }
+        .topbar-title strong {
+            font-size: 0.92rem;
+        }
+        .topbar-title span {
+            font-size: 0.74rem;
+        }
+        .main-shell {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            gap: 10px;
+            min-height: 0;
+            overflow: hidden;
+            padding: 10px 12px;
+        }
+        .content {
+            padding: 0;
+            min-height: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: 100%;
+            padding-right: 4px;
+        }
+        .right-rail {
+            min-height: 0;
+            height: calc(100vh - var(--topbar-height) - var(--footer-height) - 20px);
+            overflow: hidden;
+        }
+        .right-log-card {
+            height: 100%;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+        }
+        .right-log-card .card-body {
+            min-height: 0;
+            padding: 10px;
+        }
+        .serial-log {
+            height: 100%;
+            min-height: 0;
+            max-height: none;
+            overflow: auto;
+            font-size: 0.9rem;
+            line-height: 1.62;
+            background: #eef4ff;
+            border-color: rgba(147, 197, 253, 0.28);
+        }
+        .page {
+            height: auto;
+            min-height: 0;
+            overflow: visible;
+        }
+        .page-grid,
+        .dashboard-shell,
+        .monitor-column,
+        .status-column,
+        .stack,
+        .param-grid,
+        .debug-grid {
+            min-height: 0;
+        }
+        .dashboard-shell {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 8px;
+            height: auto;
+        }
+        .status-column {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            display: grid;
+            gap: 8px;
+        }
+        .monitor-column {
+            gap: 8px;
+        }
+        .card {
+            border-radius: 16px;
+        }
+        .card-header {
+            padding: 10px 12px 0;
+        }
+        .card-title {
+            font-size: 0.94rem;
+        }
+        .card-note {
+            font-size: 0.8rem;
+        }
+        .card-body {
+            padding: 10px;
+        }
+        .monitor-title {
+            font-size: 1.08rem;
+        }
+        .monitor-actions, .hero-actions, .inline-actions {
+            gap: 6px;
+        }
+        .btn {
+            padding: 8px 12px;
+            font-size: 0.86rem;
+            border-radius: 12px;
+        }
+        .video-box {
+            aspect-ratio: 16 / 8.5;
+        }
+        .digital-grid {
+            gap: 8px;
+        }
+        .digital-card {
+            min-height: 118px;
+            padding: 14px 16px;
+        }
+        .gauge-value {
+            font-size: clamp(3rem, 4vw, 4rem);
+        }
+        .gauge-unit {
+            margin-top: 6px;
+            font-size: 0.74rem;
+        }
+        .digital-meta {
+            margin-top: 6px;
+            font-size: 0.72rem;
+        }
+        .signal-grid {
+            gap: 8px;
+        }
+        .signal-card {
+            padding: 10px 12px;
+        }
+        .signal-value {
+            font-size: 1rem;
+        }
+        .status-line {
+            padding: 6px 0;
+        }
+        .status-line strong {
+            font-size: 0.9rem;
+        }
+        .queue-table th, .queue-table td, .history-table th, .history-table td {
+            padding: 8px 8px;
+            font-size: 0.84rem;
+        }
+        .queue-table th, .history-table th {
+            font-size: 0.8rem;
+        }
+        .param-grid,
+        .debug-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            height: 100%;
+            align-items: stretch;
+        }
+        .param-grid .card,
+        .debug-grid .card {
+            height: 100%;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+        }
+        .param-grid .card-body,
+        .debug-grid .card-body {
+            min-height: 0;
+            overflow: hidden;
+            padding: 10px;
+        }
+        .param-list,
+        .control-list {
+            gap: 6px;
+        }
+        .param-list {
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .param-row,
+        .motor-row {
+            padding: 7px 9px;
+            gap: 6px;
+        }
+        .param-row {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) auto;
+            justify-content: unset;
+            align-items: center;
+        }
+        .param-row span:first-child {
+            font-size: 0.88rem;
+        }
+        .value-btn,
+        .toggle-chip {
+            padding: 6px 10px;
+            font-size: 0.82rem;
+            min-width: 64px;
+        }
+        .num-input,
+        .edit-dialog input {
+            padding: 7px 9px;
+            font-size: 0.86rem;
+        }
+        .motor-row {
+            grid-template-columns: minmax(96px, 1.1fr) 74px 1fr auto;
+        }
+        .motor-row strong {
+            font-size: 0.88rem;
+        }
+        .footer-bar {
+            position: relative;
+            left: auto;
+            right: auto;
+            bottom: auto;
+            height: var(--footer-height);
+            padding: 0 12px 0 12px;
+            z-index: 5;
+        }
+        .footer-meta {
+            font-size: 0.8rem;
+        }
+        .footer-actions {
+            gap: 8px;
+        }
+        .footer-actions .btn {
+            min-width: 132px;
+        }
+        .nav-btn {
+            font-size: 0.86rem;
+        }
+        .nav-icon {
+            font-size: 1.05rem;
+        }
+        @media (max-width: 1480px) {
+            .main-shell {
+                grid-template-columns: minmax(0, 1fr) 300px;
+            }
+            .status-column {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark">鱼</div>
+            <h1>带鱼智能处理台</h1>
+            <p>桌面工业仪表盘。左侧导航切页，主区域同屏展示更多状态、任务与调试数据。</p>
+        </div>
+        <div class="nav-list">
+            <button class="nav-btn active" data-page="dashboard"><span class="nav-icon">加</span><span>加工仪表盘</span></button>
+            <button class="nav-btn" data-page="params"><span class="nav-icon">参</span><span>参数配置</span></button>
+            <button class="nav-btn" data-page="debug"><span class="nav-icon">调</span><span>手动调试</span></button>
+            <button class="nav-btn" data-page="history"><span class="nav-icon">历</span><span>识别历史</span></button>
+            <button class="nav-btn" data-page="status"><span class="nav-icon">状</span><span>系统状态</span></button>
+        </div>
+        <div class="nav-meta">
+            <h3>控制说明</h3>
+            <p>电脑端适合连续监看视频、任务队列、调试串口信息和参数协同操作。</p>
+        </div>
+    </aside>
+    <main class="main">
+        <header class="topbar">
+            <div class="topbar-title">
+                <strong>Fish Processing Industrial Console</strong>
+                <span>桌面端现代工业级中控台</span>
+            </div>
+            <div id="hardware-monitor" class="hardware-monitor" style="color: #0f172a; background: #f1f5f9; border: 1px solid #cbd5e1; box-shadow: none; font-weight: 800;">CPU: -- | Mem: -- | Temp: --</div>
+            <div class="topbar-title" style="text-align:right;">
+                <strong>PC / Control Surface</strong>
+                <span>保持既有接口与数据推送逻辑不变</span>
+            </div>
+        </header>
+        <div class="main-shell">
+        <div class="content">
+            <section id="page-dashboard" class="page active">
+                <div class="dashboard-shell">
+                    <div class="monitor-column">
+                        <div class="card monitor-strip">
+                            <div class="card-body">
+                                <div class="monitor-head">
+                                    <div>
+                                        <div class="gauge-label" style="margin-bottom:10px;">CONTROL BAY</div>
+                                        <h2 class="monitor-title">现代工业级中控台</h2>
+                                        <div id="top-subtitle" class="monitor-subtitle">系统初始化中...</div>
+                                        <div id="hero-detail" class="monitor-subtitle" style="margin-top:6px;">开启视觉后，系统会根据当前模式持续更新识别、任务和硬件状态。</div>
+                                    </div>
+                                    <div class="monitor-leds">
+                                        <div class="led-item"><span id="led-serial" class="led red"></span><span>串口</span></div>
+                                        <div class="led-item"><span id="led-vision" class="led red"></span><span>视觉</span></div>
+                                        <div class="led-item"><span id="led-job" class="led red"></span><span>任务</span></div>
+                                        <div class="metric-link-pill"><span id="metric-link">OFFLINE</span></div>
+                                        <div class="metric-link-pill"><span id="top-port">端口：--</span></div>
+                                        <div class="metric-link-pill"><span id="metric-port">端口：--</span></div>
+                                    </div>
+                                </div>
+                                <div class="monitor-actions" style="margin-top:16px;">
+                                    <button id="btn-start-vision" class="btn btn-sky">启动视觉</button>
+                                    <button id="btn-stop-vision" class="btn btn-slate">停止视觉</button>
+                                    <button id="btn-live-overlay" class="btn btn-light">实时渲染：关</button>
+                                    <button id="btn-snapshot" class="btn btn-teal">连拍测长</button>
+                                    <button id="btn-generate" class="btn btn-light">生成处理任务</button>
+                                    <button id="btn-weight" class="btn btn-orange">读取重量</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card monitor-video">
+                            <div class="card-header">
+                                <div><h3 class="card-title">视频监控画面</h3><div class="card-note">MJPEG 低延迟工业监控流</div></div>
+                                <div id="preview-badge" class="card-note">等待连接</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="video-box"><img id="video-stream" src="/api/video_feed" alt="video stream"></div>
+                            </div>
+                        </div>
+
+                        <div class="digital-grid">
+                            <div class="digital-card" id="gauge-length" style="--gauge-pct: 0;">
+                                <div class="gauge-content">
+                                    <div class="gauge-label">Length</div>
+                                    <div id="gauge-length-value" class="gauge-value">--</div>
+                                    <div class="gauge-unit">CM</div>
+                                    <div id="metric-len" class="digital-meta">-- cm</div>
+                                    <div id="metric-det-time" class="digital-meta">最近检测：--</div>
+                                </div>
+                            </div>
+                            <div class="digital-card weight-card" id="gauge-weight" style="--gauge-pct: 0;">
+                                <div class="gauge-content">
+                                    <div class="gauge-label">Weight</div>
+                                    <div id="gauge-weight-value" class="gauge-value">--</div>
+                                    <div class="gauge-unit">G / KG</div>
+                                    <div id="live-weight" class="digital-meta">重量：--</div>
+                                    <div id="live-result" class="digital-meta">--</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="signal-grid">
+                            <div class="signal-card">
+                                <div class="signal-label">识别详情</div>
+                                <div id="live-detail" class="signal-value">--</div>
+                                <div id="vision-general-status" class="signal-note">--</div>
+                            </div>
+                            <div class="signal-card">
+                                <div class="signal-label">最近快照</div>
+                                <div id="snap-length" class="signal-value">--</div>
+                                <div id="snap-time" class="signal-note">--</div>
+                            </div>
+                            <div class="signal-card">
+                                <div class="signal-label">任务结果</div>
+                                <div id="job-result" class="signal-value">--</div>
+                                <div id="last-serial-line-short" class="signal-note">--</div>
+                            </div>
+                        </div>
+                        <div class="card" style="margin-top: 8px;">
+                            <div class="card-header"><h3 class="card-title">最近快照画面</h3></div>
+                            <div class="card-body">
+                                <img id="latest-snapshot-img" src="/api/latest_snapshot" alt="latest snapshot" style="display:block;width:100%;max-height:300px;object-fit:contain;border-radius:12px;background:#020617;border:1px solid rgba(148,163,184,0.18);">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-column">
+                        <div class="card">
+                            <div class="card-header"><div><h3 class="card-title">任务队列</h3><div class="card-note" id="task-summary">请先测长再生成处理任务</div></div></div>
+                            <div class="card-body table-wrap">
+                                <table class="queue-table">
+                                    <thead><tr><th>步骤</th><th>类型</th><th>长度</th></tr></thead>
+                                    <tbody id="task-table-body"><tr><td colspan="3" class="card-note">暂无任务</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header"><div><h3 class="card-title">长度趋势图</h3><div class="card-note">最近几次处理长度趋势，支持刷新后延续查看</div></div></div>
+                            <div class="card-body">
+                                <div id="length-trend-chart" style="height:260px;"></div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header"><div><h3 class="card-title">丝杠进度</h3><div class="card-note">当前位置、建议参考与行程占比</div></div></div>
+                            <div class="card-body">
+                                <div class="gauge-label">Linear Axis</div>
+                                <div id="metric-pos" class="gauge-value" style="font-size:3rem;">0.00 mm</div>
+                                <div class="digital-meta">建议参考：<span id="dashboard-feed">--</span></div>
+                                <div class="progress-shell" style="margin-top:18px;">
+                                    <div class="progress-track"><div id="stepper-progress" class="progress-bar"></div></div>
+                                    <div class="digital-meta" style="margin-top:10px;">当前位置占参考行程 <span id="stepper-progress-text">0%</span></div>
+                                </div>
+                                <div class="monitor-actions" style="margin-top:16px;">
+                                    <button id="btn-refresh-limits" class="btn btn-slate">刷新限位</button>
+                                    <button class="btn btn-light" type="button" onclick="postAction('/api/action/query_job_status')">查询任务</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header"><div><h3 class="card-title">限位 / 运行状态</h3><div class="card-note">自动状态、任务进度和限位反馈同屏集中显示</div></div></div>
+                            <div class="card-body">
+                                <div class="limit-grid">
+                                    <div class="limit-box"><div class="signal-label">回零限位</div><div class="signal-value" style="font-size:1.1rem;"><span id="limit-home-light" class="limit-light"></span> <span id="limit-home-text">回零限位：--</span></div></div>
+                                    <div class="limit-box"><div class="signal-label">挡板限位</div><div class="signal-value" style="font-size:1.1rem;"><span id="limit-stop-light" class="limit-light"></span> <span id="limit-stop-text">挡板限位：--</span></div></div>
+                                    <div class="limit-box"><div class="signal-label">切割起点 D9</div><div class="signal-value" style="font-size:1.1rem;"><span id="cut-start-light" class="limit-light"></span> <span id="cut-start-text">切割起点：--</span></div></div>
+                                    <div class="limit-box"><div class="signal-label">切割终点 A2</div><div class="signal-value" style="font-size:1.1rem;"><span id="cut-end-light" class="limit-light"></span> <span id="cut-end-text">切割终点：--</span></div></div>
+                                </div>
+                                <div class="status-card-list" style="margin-top:16px;">
+                                    <div class="status-line"><span>首段参考</span><strong id="metric-head">-- mm</strong></div>
+                                    <div class="status-line"><span>剩余参考</span><strong id="metric-remain">剩余可切：--</strong></div>
+                                    <div class="status-line"><span>执行状态</span><strong id="metric-auto">OFF</strong></div>
+                                    <div class="status-line"><span>执行说明</span><strong id="metric-auto-detail">当前未执行自动处理任务</strong></div>
+                                    <div class="status-line"><span>自动状态</span><strong id="auto-state">--</strong></div>
+                                    <div class="status-line"><span>任务状态</span><strong id="job-state">待机</strong></div>
+                                    <div class="status-line"><span>任务进度</span><strong id="job-progress">--</strong></div>
+                                    <div class="status-line"><span>端口信息</span><strong>见顶部状态栏</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="page-params" class="page">
+                <div class="page-grid param-grid">
+                    <div class="stack">
+                        <div class="card">
+                            <div class="card-header"><div><h3 class="card-title">任务策略与播报</h3><div class="card-note">保留原版策略区，但使用桌面端更高密度排版</div></div></div>
+                            <div class="card-body param-list">
+                                <div class="param-row"><span>任务模式</span><div class="inline-actions"><button id="cut-mode-fixed" class="btn btn-sky">固定长度</button><button id="cut-mode-avg" class="btn btn-slate">平均分段</button></div></div>
+                                <div class="param-row"><span>固定每段长度(mm)</span><button class="value-btn config-edit" data-field="fixed_length_mm" data-label="固定每段长度(mm)" data-type="int" data-min="1" data-max="500">60</button></div>
+                                <div class="param-row"><span>平均分几段</span><button class="value-btn config-edit" data-field="avg_parts_count" data-label="平均分几段" data-type="int" data-min="1" data-max="20">4</button></div>
+                                <div class="param-row"><span>语音播报</span><button id="voice-toggle" class="toggle-chip value-btn">开启</button></div>
+                                <div class="param-row"><span>自动模式</span><button id="auto-toggle" class="toggle-chip value-btn">关闭</button></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><div><h3 class="card-title">自动加工参数</h3><div class="card-note">传送、稳定和触发相关参数</div></div></div>
+                            <div class="card-body param-list">
+                                <div class="param-row"><span>传送带速度</span><button class="value-btn config-edit" data-field="auto_speed" data-label="传送带速度" data-type="int" data-min="0" data-max="100">70</button></div>
+                                <div class="param-row"><span>稳定帧数</span><button class="value-btn config-edit" data-field="stable_frames" data-label="稳定帧数" data-type="int" data-min="1" data-max="10">3</button></div>
+                                <div class="param-row"><span>目标丢失帧数</span><button class="value-btn config-edit" data-field="absent_frames" data-label="目标丢失帧数" data-type="int" data-min="3" data-max="30">8</button></div>
+                                <div class="param-row"><span>长度稳定容差(cm)</span><button class="value-btn config-edit" data-field="tolerance" data-label="长度稳定容差(cm)" data-type="float" data-min="0.1" data-max="10">1.0</button></div>
+                                <div class="param-row"><span>冷却时间(s)</span><button class="value-btn config-edit" data-field="cooldown" data-label="冷却时间(s)" data-type="float" data-min="0.5" data-max="30">2.0</button></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stack">
+                        <div class="card">
+                            <div class="card-header"><div><h3 class="card-title">传送 / 刷鳞 / 分拣</h3><div class="card-note">一屏集中控制下发前的关键配置</div></div></div>
+                            <div class="card-body param-list">
+                                <div class="param-row"><span>刷鳞速度</span><button class="value-btn config-edit" data-field="cut_motor_speed" data-label="刷鳞速度" data-type="int" data-min="0" data-max="100">85</button></div>
+                                <div class="param-row"><span>终点停留延时 (ms)</span><button class="value-btn config-edit" data-field="cut_time_ms" data-label="终点停留延时 (ms)" data-type="int" data-min="100" data-max="5000">1200</button></div>
+                                <div class="param-row"><span>刀片物理偏移量 (mm)</span><button class="value-btn config-edit" data-field="blade_offset_mm" data-label="刀片物理偏移量 (mm)" data-type="float" data-min="0" data-max="200">45.0</button></div>
+                                <div class="param-row"><span>挡板稳定(ms)</span><button class="value-btn config-edit" data-field="settle_ms" data-label="挡板稳定(ms)" data-type="int" data-min="0" data-max="2000">200</button></div>
+                                <div class="param-row"><span>分拣停留(ms)</span><button class="value-btn config-edit" data-field="sort_hold_ms" data-label="分拣停留(ms)" data-type="int" data-min="0" data-max="3000">600</button></div>
+                                <div class="param-row"><span>回中位稳定(ms)</span><button class="value-btn config-edit" data-field="center_hold_ms" data-label="回中位稳定(ms)" data-type="int" data-min="0" data-max="2000">250</button></div>
+                                <div class="param-row"><span>排料运行(ms)</span><button class="value-btn config-edit" data-field="eject_ms" data-label="排料运行(ms)" data-type="int" data-min="0" data-max="10000">2000</button></div>
+                                <div class="param-row"><span>舵机1中位(°)</span><button class="value-btn config-edit" data-field="servo_center" data-label="舵机1中位(°)" data-type="int" data-min="0" data-max="180">90</button></div>
+                                <div class="param-row"><span>舵机1左分拣位(°)</span><button class="value-btn config-edit" data-field="servo_head" data-label="舵机1左分拣位(°)" data-type="int" data-min="0" data-max="180">0</button></div>
+                                <div class="param-row"><span>舵机1右分拣位(°)</span><button class="value-btn config-edit" data-field="servo_body" data-label="舵机1右分拣位(°)" data-type="int" data-min="0" data-max="180">180</button></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><div><h3 class="card-title">任务下发与称重</h3><div class="card-note">参数应用后可直接生成、下发或称重</div></div></div>
+                            <div class="card-body compact-grid">
+                                <button id="btn-apply-config" class="btn btn-sky">应用参数</button>
+                                <button id="btn-generate-config" class="btn btn-light">生成处理任务</button>
+                                <button id="btn-dispatch-only" class="btn btn-violet">下发任务</button>
+                                <button id="btn-dispatch-start-config" class="btn btn-green">下发并启动</button>
+                                <button id="btn-clear-tasks" class="btn btn-slate">清空任务表</button>
+                                <button id="btn-weight-params" class="btn btn-orange">读取重量</button>
+                                <button id="btn-tare" class="btn btn-amber" style="grid-column: 1 / -1;">称重去皮</button>
+                                <button id="btn-reset-config" class="btn btn-red" style="grid-column: 1 / -1;">恢复默认参数</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="page-debug" class="page">
+                <div class="debug-grid">
+                    <div class="card">
+                        <div class="card-header"><div><h3 class="card-title">M1 / M2 驱动模块</h3><div class="card-note">M1（刷鱼鳞）/ M2（传送带）统一速度与单独控制</div></div></div>
+                        <div class="card-body control-list">
+                            <div class="param-row"><span>统一速度 (-100 ~ 100)</span><input id="all-speed-input" class="num-input" type="number" value="60" min="-100" max="100"></div>
+                            <div class="compact-grid">
+                                <button id="btn-all-forward" class="btn btn-green">全部正转</button>
+                                <button id="btn-all-reverse" class="btn btn-orange">全部反转</button>
+                                <button id="btn-all-stop" class="btn btn-slate" style="grid-column: 1 / -1;">全部停止</button>
+                            </div>
+                            <div id="motor-list" class="motor-grid"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><div><h3 class="card-title">丝杠模块</h3><div class="card-note">步长预设、位移控制、物理回零和当前位置设零</div></div></div>
+                        <div class="card-body control-list">
+                            <div class="param-row"><span>位移(mm)</span><input id="step-distance-input" class="num-input" type="number" value="10" step="0.01"></div>
+                            <div class="inline-actions">
+                                <button class="btn btn-slate step-preset" data-value="5">5 mm</button>
+                                <button class="btn btn-slate step-preset" data-value="10">10 mm</button>
+                                <button class="btn btn-slate step-preset" data-value="20">20 mm</button>
+                                <button class="btn btn-slate step-preset" data-value="50">50 mm</button>
+                            </div>
+                            <div class="compact-grid">
+                                <button id="btn-step-forward" class="btn btn-green">前进 (+)</button>
+                                <button id="btn-step-backward" class="btn btn-orange">后退 (-)</button>
+                                <button id="btn-home-stepper" class="btn btn-sky">物理回零</button>
+                                <button id="btn-step-zero" class="btn btn-light">当前位置设零</button>
+                                <button id="btn-goto-zero" class="btn btn-violet" style="grid-column: 1 / -1;">回到设定零点</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><div><h3 class="card-title">舵机1（倾倒分拣）</h3><div class="card-note">中位、左分拣位、右分拣位与自定义角度</div></div></div>
+                        <div class="card-body control-list">
+                            <div class="param-row"><span>舵机1角度 (0 ~ 180)</span><input id="servo-angle-input" class="num-input" type="number" value="90" min="0" max="180"></div>
+                            <div class="compact-grid">
+                                <button id="btn-servo-angle" class="btn btn-sky">执行舵机1</button>
+                                <button id="btn-servo-center" class="btn btn-light">舵机1中位</button>
+                                <button id="btn-servo-head" class="btn btn-orange">舵机1左分拣位</button>
+                                <button id="btn-servo-body" class="btn btn-teal">舵机1右分拣位</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><div><h3 class="card-title">切割机构控制台</h3><div class="card-note">丝杠2横向切割闭环调试，D9 起点 / A2 终点双传感器保护</div></div></div>
+                        <div class="card-body control-list">
+                            <div class="compact-grid">
+                                <button id="btn-cut-test" class="btn btn-orange" type="button" onclick="postAction('/api/action/cut_test')">横切测试</button>
+                                <button id="btn-cut-home" class="btn btn-slate" type="button" onclick="postAction('/api/action/cut_home')">刀头复位</button>
+                                <button id="btn-cut-forward" class="btn btn-sky" type="button" onclick="postAction('/api/action/cut_forward')">向右正转</button>
+                                <button id="btn-cut-reverse" class="btn btn-teal" type="button" onclick="postAction('/api/action/cut_reverse')">向左反转</button>
+                                <button id="btn-feed-stop" class="btn btn-violet">传送到挡板</button>
+                                <button id="btn-eject-tail" class="btn btn-amber">排料运行</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="page-history" class="page">
+                <div class="card">
+                    <div class="card-header"><div><h3 class="card-title">识别历史数据表</h3><div class="card-note">点击表头可排序</div></div><button id="btn-clear-history" class="btn btn-slate">清空记录</button></div>
+                    <div class="card-body table-wrap">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th data-sort="time">时间</th>
+                                    <th data-sort="length">长度</th>
+                                    <th data-sort="source">来源</th>
+                                    <th data-sort="note">备注</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                                <tr><td colspan="4" class="card-note">暂无识别记录</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            <section id="page-status" class="page">
+                <div class="page-grid compact-grid">
+                    <div class="stack">
+                        <div class="metrics-row">
+                            <div class="metric-card"><div class="metric-label">记录数</div><div id="stat-records" class="metric-value">0</div></div>
+                            <div class="metric-card"><div class="metric-label">平均长度</div><div id="stat-avg" class="metric-value">0.0 cm</div></div>
+                            <div class="metric-card"><div class="metric-label">最大长度</div><div id="stat-max" class="metric-value">0.0 cm</div></div>
+                            <div class="metric-card"><div class="metric-label">运行时长</div><div id="stat-uptime" class="metric-value">00:00:00</div></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><div><h3 class="card-title">系统总览</h3><div class="card-note">串口、视觉、任务与最近消息</div></div></div>
+                            <div class="card-body">
+                                <div class="status-list">
+                                    <div class="status-line"><span>串口端口</span><strong id="status-port">--</strong></div>
+                                    <div class="status-line"><span>连接状态</span><strong id="status-conn">离线</strong></div>
+                                    <div class="status-line"><span>操作权</span><strong id="status-lock">空闲</strong></div>
+                                    <div class="status-line"><span>丝杠位置</span><strong id="status-pos">0.00 mm</strong></div>
+                                    <div class="status-line"><span>最近串口消息</span><strong id="last-serial-line">--</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stack">
+                        <div class="card">
+                            <div class="card-header"><div><h3 class="card-title">维护操作</h3><div class="card-note">系统层面的查询与重连</div></div></div>
+                            <div class="card-body compact-grid">
+                                <button id="btn-reconnect" class="btn btn-light">重连硬件</button>
+                                <button id="btn-query-job" class="btn btn-slate">查询任务</button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><div><h3 class="card-title">最近任务队列</h3><div class="card-note" id="history-task-summary">暂无任务</div></div></div>
+                            <div class="card-body table-wrap">
+                                <table class="queue-table">
+                                    <thead><tr><th>步骤</th><th>类型</th><th>长度</th></tr></thead>
+                                    <tbody id="history-task-table-body"><tr><td colspan="3" class="card-note">暂无任务</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <aside class="right-rail">
+            <div class="card right-log-card">
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title">串口原始消息</h3>
+                        <div class="card-note">全局常驻实时反馈区。切换任意页面时，这里都会持续显示底层串口返回。</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="serial-log" id="debug-log-box"></div>
+                </div>
+            </div>
+        </aside>
+        </div>
+        <div class="footer-bar">
+            <div class="footer-meta">底部动作栏始终保留人工兜底操作。请确认当前任务状态后再执行下发或急停。</div>
+            <div class="footer-actions">
+                <button id="btn-footer-dispatch" class="btn btn-green">下发任务</button>
+                <button id="btn-estop" class="btn btn-red">全局急停</button>
+            </div>
+        </div>
+    </main>
+</div>
+<div id="edit-overlay" class="edit-overlay">
+    <div class="edit-dialog">
+        <h3 id="edit-title">编辑参数</h3>
+        <input id="edit-input" type="number">
+        <div class="inline-actions" style="justify-content:flex-end;">
+            <button id="edit-cancel" class="btn btn-slate">取消</button>
+            <button id="edit-confirm" class="btn btn-sky">确认</button>
+        </div>
+    </div>
+</div>
+<script>
+const STATE={logs:[],history:[],sortKey:'time',sortDir:'desc',trendChart:null,trendChartResizeBound:false};
+let CONFIG={};
+let EDIT=null;
+let HOLD_UNTIL=0;
+const DEFAULT_STEPPER_MM=300;
+const MISSING_EL={style:{},dataset:{},classList:{add(){},remove(){},toggle(){}},addEventListener(){},focus(){},value:'',textContent:'',innerHTML:'',className:'',onclick:null};
+function $(id){return document.getElementById(id)||(['servo2-angle-input','btn-servo2-angle','btn-servo2-down-preset','btn-servo2-up-preset'].includes(id)?MISSING_EL:null)}
+function setLed(id,status){const el=$(id);el.className='led '+status}
+function formatWeight(w){if(w===null||w===undefined||w<=0)return'--';if(w>=1000)return(w/1000).toFixed(2)+' kg';return Number(w).toFixed(1)+' g'}
+function formatTime(ts){if(!ts)return'--';const d=new Date(ts*1000);return Number.isNaN(d.getTime())?'--':d.toLocaleTimeString('zh-CN',{hour12:false})}
+function formatDuration(s){s=Math.max(0,Math.floor(s||0));const h=String(Math.floor(s/3600)).padStart(2,'0');const m=String(Math.floor((s%3600)/60)).padStart(2,'0');const sec=String(s%60).padStart(2,'0');return `${h}:${m}:${sec}`}
+function syncInputValue(id,value){const el=$(id);if(!el||value===undefined||value===null)return;if(document.activeElement===el)return;el.value=String(value)}
+function hydrateConfig(d){if(Date.now()<HOLD_UNTIL)return;CONFIG={cut_mode:d.cut_mode||'fixed',voice_broadcast:!!d.voice_broadcast,fixed_length_mm:d.fixed_length_mm??60,avg_parts_count:d.avg_parts_count??4,auto_speed:d.auto_speed??70,stable_frames:d.stable_frames??3,absent_frames:d.absent_frames??8,tolerance:d.tolerance??1,cooldown:d.cooldown??2,settle_ms:d.settle_ms??200,sort_hold_ms:d.sort_hold_ms??600,center_hold_ms:d.center_hold_ms??250,eject_ms:d.eject_ms??2000,cut_time_ms:d.cut_time_ms??1200,blade_offset_mm:d.blade_offset_mm??45.0,servo_center:d.servo_center??90,servo_head:d.servo_head??0,servo_body:d.servo_body??180,servo2_down:d.servo2_down??0,servo2_up:d.servo2_up??180,cut_motor_speed:d.cut_motor_speed??85,auto_enabled:!!d.auto_enabled};renderConfigButtons()}
+function renderConfigButtons(){document.querySelectorAll('.config-edit').forEach(el=>{const f=el.dataset.field;if(CONFIG[f]!==undefined)el.textContent=CONFIG[f]});$('voice-toggle').textContent=CONFIG.voice_broadcast?'开启':'关闭';$('auto-toggle').textContent=CONFIG.auto_enabled?'开启':'关闭';$('cut-mode-fixed').className=`btn ${CONFIG.cut_mode==='fixed'?'btn-sky':'btn-slate'}`;$('cut-mode-avg').className=`btn ${CONFIG.cut_mode==='avg'?'btn-sky':'btn-slate'}`;if($('btn-servo2-down-preset'))$('btn-servo2-down-preset').textContent=`下压预设 ${CONFIG.servo2_down??0}°`;if($('btn-servo2-up-preset'))$('btn-servo2-up-preset').textContent=`抬起预设 ${CONFIG.servo2_up??180}°`}
+function setGauge(id,value,maxValue,unit){const pct=Math.max(0,Math.min(100,maxValue>0?(value/maxValue)*100:0));const gauge=$(id);gauge.style.setProperty('--gauge-pct',pct.toFixed(1));if(id==='gauge-length')$('gauge-length-value').textContent=value>0?value.toFixed(1):'--';if(id==='gauge-weight')$('gauge-weight-value').textContent=value>0?(value>=1000?(value/1000).toFixed(2):Math.round(value)):'--'}
+function setChipStatus(){const serialOn=$('metric-link').textContent==='ONLINE';setLed('led-serial',serialOn?'green':'red')}
+function updateProgress(current,total){const ref=Math.max(total>0?total*1.2:0,DEFAULT_STEPPER_MM);const pct=Math.max(0,Math.min(100,(current/ref)*100));$('stepper-progress').style.width=`${pct}%`;$('stepper-progress-text').textContent=`${pct.toFixed(0)}%`}
+function renderTaskTable(id,tasks){const tbody=$(id);if(!tasks||!tasks.length){tbody.innerHTML='<tr><td colspan="3" class="card-note">暂无任务</td></tr>';return}tbody.innerHTML=tasks.map(task=>`<tr><td>${task.idx}</td><td><span class="badge ${task.tag==='HEAD'?'badge-head':'badge-body'}">${task.kind}</span></td><td>${Number(task.len_mm).toFixed(2)} mm</td></tr>`).join('')}
+function parseLengthNum(text){const m=String(text||'').match(/([\d.]+)/);return m?parseFloat(m[1]):0}
+function renderHistoryTable(rows){const tbody=$('history-table-body');if(!rows||!rows.length){tbody.innerHTML='<tr><td colspan="4" class="card-note">暂无识别记录</td></tr>';return}const sorted=[...rows].sort((a,b)=>{let av=a[STATE.sortKey]??'';let bv=b[STATE.sortKey]??'';if(STATE.sortKey==='length'){av=parseLengthNum(av);bv=parseLengthNum(bv)}return STATE.sortDir==='asc'?(av>bv?1:av<bv?-1:0):(av<bv?1:av>bv?-1:0)});tbody.innerHTML=sorted.map(r=>`<tr><td>${r.time||'--'}</td><td>${r.length||'--'}</td><td>${r.source||'--'}</td><td>${r.note||'--'}</td></tr>`).join('')}
+function pushLog(message){if(!message)return;if(STATE.logs[STATE.logs.length-1]===message)return;STATE.logs.push(message);if(STATE.logs.length>60)STATE.logs.shift();const html=STATE.logs.map(item=>`<div>${item}</div>`).join('');$('debug-log-box').innerHTML=html;$('last-serial-line-short').textContent=STATE.logs[STATE.logs.length-1]||'--'}
+function refreshSnapshotImage(snapshotTime){const img=$('latest-snapshot-img');if(!img)return;const cacheKey=snapshotTime?String(snapshotTime):'placeholder';if(img.dataset.cacheKey===cacheKey)return;img.dataset.cacheKey=cacheKey;img.src=`/api/latest_snapshot?t=${encodeURIComponent(cacheKey)}`}
+function renderLengthTrendChart(points){const el=$('length-trend-chart');if(!el)return;if(!window.echarts){el.innerHTML='<div class="card-note">图表库未加载，无法显示趋势图。</div>';return}if(!STATE.trendChart){STATE.trendChart=echarts.init(el);if(!STATE.trendChartResizeBound){window.addEventListener('resize',()=>{if(STATE.trendChart)STATE.trendChart.resize()});STATE.trendChartResizeBound=true}}const rows=Array.isArray(points)?points:[];const labels=rows.map(item=>item.time||'--');const values=rows.map(item=>Number(item.length_cm||0));STATE.trendChart.setOption({backgroundColor:'transparent',grid:{left:24,right:18,top:28,bottom:26,containLabel:true},tooltip:{trigger:'axis',backgroundColor:'rgba(7,17,27,0.95)',borderColor:'rgba(34,211,238,0.35)',textStyle:{color:'#e5eefb'}},xAxis:{type:'category',boundaryGap:false,data:labels,axisLine:{lineStyle:{color:'rgba(143,164,191,0.35)'}},axisLabel:{color:'#8fa4bf'}},yAxis:{type:'value',name:'cm',nameTextStyle:{color:'#8fa4bf'},splitLine:{lineStyle:{color:'rgba(143,164,191,0.12)'}},axisLine:{show:false},axisLabel:{color:'#8fa4bf'}},series:[{name:'长度趋势',type:'line',smooth:true,symbol:'circle',symbolSize:8,data:values,lineStyle:{width:3,color:'#22d3ee'},itemStyle:{color:'#22d3ee',borderColor:'#e5eefb',borderWidth:1.5},areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(34,211,238,0.42)'},{offset:1,color:'rgba(34,211,238,0.04)'}])}}],graphic:rows.length?[]:[{type:'text',left:'center',top:'middle',style:{text:'暂无测量趋势数据',fill:'#8fa4bf',font:'14px \"Segoe UI\", \"Microsoft YaHei\", sans-serif'}}]},true)}
+function openEdit(btn){EDIT={field:btn.dataset.field,type:btn.dataset.type,min:Number(btn.dataset.min),max:Number(btn.dataset.max),label:btn.dataset.label};$('edit-title').textContent=EDIT.label;$('edit-input').value=CONFIG[EDIT.field];$('edit-input').step=EDIT.type==='float'?'0.1':'1';$('edit-overlay').classList.add('active');$('edit-input').focus()}
+function closeEdit(){$('edit-overlay').classList.remove('active');EDIT=null}
+async function postAction(url,body){const options={method:'POST',headers:{}};if(body!==undefined){options.headers['Content-Type']='application/json';options.body=JSON.stringify(body)}const finalUrl=url+(url.includes('?')?'&':'?')+'client=PC';try{await fetch(finalUrl,options);setTimeout(refreshStatus,250)}catch(err){console.error(err)}}
+async function refreshStatus(){try{const res=await fetch('/api/status',{cache:'no-store'});const d=await res.json();hydrateConfig(d);$('top-subtitle').textContent=d.general_status||'--';$('top-port').textContent=`端口：${d.serial_port||'--'}`;setLed('led-serial',d.serial_connected?'green':'red');setLed('led-vision',d.vision_running?'green':'red');setLed('led-job',d.job_running?'orange':(d.job_progress_text&&d.job_progress_text!=='--'?'green':'red'));const cpuValue=Number(d.cpu_percent||0).toFixed(0);const memValue=Number(d.mem_percent||0).toFixed(0);const tempRaw=Number(d.cpu_temp||0);const tempHot=tempRaw>=80;const tempText=tempRaw>0?`${tempRaw.toFixed(1)}°C`:'--';$('hardware-monitor').innerHTML=`CPU: ${cpuValue}% | Mem: ${memValue}% | Temp: <span style="color:${tempHot?'#ef4444':'inherit'}">${tempText}</span>`;$('hero-detail').textContent=d.general_status||'--';$('metric-link').textContent=d.serial_connected?'ONLINE':'OFFLINE';$('metric-port').textContent=`端口：${d.serial_port||'--'}`;$('metric-len').textContent=d.last_detected_length>0?`${d.last_detected_length.toFixed(1)} cm`:'-- cm';$('metric-det-time').textContent=`最近检测：${formatTime(d.last_detection_at)}`;$('metric-head').textContent=d.current_head_mm>0?`${Number(d.current_head_mm).toFixed(1)} mm`:'-- mm';$('metric-remain').textContent=d.current_remain_mm>0?`剩余可切：${Number(d.current_remain_mm).toFixed(1)} mm`:'剩余可切：--';$('metric-auto').textContent=d.job_running?'RUN':(d.job_progress_text&&d.job_progress_text!=='--'?'PLAN':'OFF');$('metric-auto-detail').textContent=d.auto_state_text||'当前未执行自动处理任务';$('metric-pos').textContent=`${Number(d.current_pos_mm||0).toFixed(2)} mm`;if(d.motor1_speed===d.motor2_speed)syncInputValue('all-speed-input',d.motor1_speed);syncInputValue('motor-speed-1',d.motor1_speed);syncInputValue('motor-speed-2',d.motor2_speed);syncInputValue('servo-angle-input',d.servo_angle_deg);syncInputValue('servo2-angle-input',d.servo2_angle_deg);$('preview-badge').textContent=d.vision_running?'视觉在线':'视觉未启动';$('live-result').textContent=d.live_result_text||'--';$('live-detail').textContent=d.live_detail_text||'--';$('live-weight').textContent=`重量：${formatWeight(d.current_weight_g)}`;if($('btn-live-overlay')){$('btn-live-overlay').textContent=d.live_overlay_enabled?'实时渲染：开':'实时渲染：关';$('btn-live-overlay').dataset.enabled=d.live_overlay_enabled?'1':'0'}$('auto-state').textContent=d.auto_state_text||'--';$('job-state').textContent=d.job_state_text||'待机';$('job-progress').textContent=d.job_progress_text||'--';$('job-result').textContent=d.job_result_text||'--';$('snap-time').textContent=formatTime(d.last_snapshot_time);$('snap-length').textContent=d.last_snapshot_length>0?`${Number(d.last_snapshot_length).toFixed(1)} cm`:'--';refreshSnapshotImage(d.last_snapshot_time);$('vision-general-status').textContent=d.general_status||'--';$('last-serial-line').textContent=d.last_serial_line||'--';$('last-serial-line-short').textContent=d.last_serial_line||'--';$('dashboard-feed').textContent=d.last_snapshot_length>0?`${((d.last_snapshot_length*10)/16).toFixed(2)} mm`:'--';$('limit-home-text').textContent=`限位1：${d.limit_home_state===null?'--':(d.limit_home_state?'触发':'未触发')}`;$('limit-stop-text').textContent=`限位2：${d.limit_stop_state===null?'--':(d.limit_stop_state?'触发':'未触发')}`;$('limit-home-light').className=`limit-light ${d.limit_home_state?'on':''}`;$('limit-stop-light').className=`limit-light ${d.limit_stop_state?'on':''}`;updateProgress(Number(d.current_pos_mm||0),Number(d.current_total_mm||0));setGauge('gauge-length',Number(d.last_detected_length||0),100,'cm');setGauge('gauge-weight',Number(d.current_weight_g||0),3000,'g');const summary=d.generated_tasks&&d.generated_tasks.length?`总长 ${Number(d.current_total_mm||0).toFixed(0)} mm，首段 ${Number(d.current_head_mm||0).toFixed(0)} mm，共 ${d.generated_tasks.length} 步`:'请先测长再生成处理任务';$('task-summary').textContent=summary;$('history-task-summary').textContent=summary;renderTaskTable('task-table-body',d.generated_tasks||[]);renderTaskTable('history-task-table-body',d.generated_tasks||[]);$('status-port').textContent=d.serial_port||'--';$('status-conn').textContent=d.serial_connected?'在线':'离线';$('status-conn').style.color=d.serial_connected?'#4ade80':'#f87171';const holder=d.op_lock_holder||'';$('status-lock').textContent=!holder?'空闲':(holder==='API'?'本机持有':holder);$('status-lock').style.color=!holder?'#4ade80':(holder==='API'?'#38bdf8':'#fbbf24');$('status-pos').textContent=`${Number(d.current_pos_mm||0).toFixed(2)} mm`;$('stat-records').textContent=d.record_count||0;$('stat-avg').textContent=`${Number(d.average_length||0).toFixed(1)} cm`;$('stat-max').textContent=`${Number(d.max_detected_length||0).toFixed(1)} cm`;$('stat-uptime').textContent=formatDuration((Date.now()/1000)-(d.session_started_at||Date.now()/1000));STATE.history=d.measurement_rows||[];renderHistoryTable(STATE.history);renderLengthTrendChart(d.length_trend_points||[]);if(d.recent_logs){STATE.logs=d.recent_logs;$('debug-log-box').innerHTML=STATE.logs.map(x=>'<div>'+x+'</div>').join('');$('last-serial-line-short').textContent=STATE.logs[STATE.logs.length-1]||'--';}}catch(err){console.error(err)}}
+function bindNav(){document.querySelectorAll('.nav-btn').forEach(btn=>{btn.addEventListener('click',()=>{const page=btn.dataset.page;document.querySelectorAll('.nav-btn').forEach(item=>item.classList.toggle('active',item===btn));document.querySelectorAll('.page').forEach(section=>section.classList.toggle('active',section.id===`page-${page}`))})})}
+function bindSort(){document.querySelectorAll('.history-table th[data-sort]').forEach(th=>{th.addEventListener('click',()=>{const key=th.dataset.sort;if(STATE.sortKey===key){STATE.sortDir=STATE.sortDir==='asc'?'desc':'asc'}else{STATE.sortKey=key;STATE.sortDir='asc'}renderHistoryTable(STATE.history)})})}
+function bindActions(){document.querySelectorAll('.config-edit').forEach(btn=>btn.addEventListener('click',()=>openEdit(btn)));$('edit-cancel').onclick=closeEdit;$('edit-confirm').onclick=function(){if(!EDIT)return;let value=$('edit-input').value;value=EDIT.type==='float'?parseFloat(value||'0'):parseInt(value||'0',10);if(Number.isNaN(value))value=EDIT.min;value=Math.max(EDIT.min,Math.min(EDIT.max,value));CONFIG[EDIT.field]=value;HOLD_UNTIL=Date.now()+3000;renderConfigButtons();closeEdit()};$('edit-overlay').addEventListener('click',e=>{if(e.target===$('edit-overlay'))closeEdit()});$('voice-toggle').onclick=()=>{CONFIG.voice_broadcast=!CONFIG.voice_broadcast;HOLD_UNTIL=Date.now()+3000;renderConfigButtons()};$('auto-toggle').onclick=()=>{CONFIG.auto_enabled=!CONFIG.auto_enabled;HOLD_UNTIL=Date.now()+3000;renderConfigButtons()};$('cut-mode-fixed').onclick=()=>{CONFIG.cut_mode='fixed';HOLD_UNTIL=Date.now()+3000;renderConfigButtons()};$('cut-mode-avg').onclick=()=>{CONFIG.cut_mode='avg';HOLD_UNTIL=Date.now()+3000;renderConfigButtons()};$('btn-start-vision').onclick=()=>postAction('/api/action/start_vision');$('btn-stop-vision').onclick=()=>postAction('/api/action/stop_vision');$('btn-live-overlay').onclick=()=>postAction('/api/action/set_live_overlay',{enabled:$('btn-live-overlay').dataset.enabled!=='1'});$('btn-snapshot').onclick=()=>postAction('/api/action/snapshot');$('btn-generate').onclick=()=>postAction('/api/action/generate_tasks');$('btn-weight').onclick=()=>postAction('/api/action/query_weight');$('btn-generate-config').onclick=()=>postAction('/api/action/generate_tasks');$('btn-apply-config').onclick=()=>postAction('/api/config/update',CONFIG);$('btn-dispatch-only').onclick=async()=>{await postAction('/api/config/update',CONFIG);await postAction('/api/action/dispatch_only')};$('btn-dispatch-start-config').onclick=async()=>{await postAction('/api/config/update',CONFIG);await postAction('/api/action/dispatch_start')};$('btn-clear-tasks').onclick=()=>postAction('/api/action/clear_tasks');$('btn-weight-params').onclick=()=>postAction('/api/action/query_weight');$('btn-tare').onclick=()=>postAction('/api/action/tare');$('btn-reset-config').onclick=async()=>{if(!window.confirm('确认恢复默认参数吗？当前自定义参数将被覆盖。'))return;await postAction('/api/action/reset_config');setTimeout(()=>window.location.reload(),1000)};$('btn-all-forward').onclick=()=>postAction('/api/action/run_all_motors',{speed:parseInt($('all-speed-input').value||'0',10)});$('btn-all-reverse').onclick=()=>postAction('/api/action/run_all_motors',{speed:-Math.abs(parseInt($('all-speed-input').value||'0',10))});$('btn-all-stop').onclick=()=>postAction('/api/action/run_all_motors',{speed:0});$('btn-step-forward').onclick=()=>postAction('/api/action/move_stepper',{distance_mm:parseFloat($('step-distance-input').value||'0')});$('btn-step-backward').onclick=()=>postAction('/api/action/move_stepper',{distance_mm:-Math.abs(parseFloat($('step-distance-input').value||'0'))});$('btn-home-stepper').onclick=()=>postAction('/api/action/home_stepper');$('btn-step-zero').onclick=()=>postAction('/api/action/set_stepper_zero');$('btn-goto-zero').onclick=()=>postAction('/api/action/goto_zero');document.querySelectorAll('.step-preset').forEach(btn=>{btn.onclick=()=>{$('step-distance-input').value=btn.dataset.value}});$('btn-servo-angle').onclick=()=>postAction('/api/action/set_servo_angle',{angle:parseInt($('servo-angle-input').value||'90',10)});$('btn-servo2-angle').onclick=()=>postAction('/api/action/set_servo2_angle',{angle:parseInt($('servo2-angle-input').value||'180',10)});$('btn-servo2-down-preset').onclick=()=>{$('servo2-angle-input').value=String(CONFIG.servo2_down??0)};$('btn-servo2-up-preset').onclick=()=>{$('servo2-angle-input').value=String(CONFIG.servo2_up??180)};$('btn-servo-center').onclick=()=>postAction('/api/action/send_servo_named',{name:'CENTER'});$('btn-servo-head').onclick=()=>postAction('/api/action/send_servo_named',{name:'HEAD'});$('btn-servo-body').onclick=()=>postAction('/api/action/send_servo_named',{name:'BODY'});$('btn-feed-stop').onclick=()=>postAction('/api/action/feed_until_stop');$('btn-eject-tail').onclick=()=>postAction('/api/action/eject_tail');$('btn-refresh-limits').onclick=()=>postAction('/api/action/query_limits');$('btn-query-job').onclick=()=>postAction('/api/action/query_job_status');$('btn-reconnect').onclick=()=>postAction('/api/action/reconnect');$('btn-clear-history').onclick=()=>postAction('/api/action/clear_measurements');$('btn-footer-dispatch').onclick=async()=>{await postAction('/api/config/update',CONFIG);await postAction('/api/action/dispatch_start')};$('btn-estop').onclick=()=>postAction('/api/action/estop');const motorList=$('motor-list');for(let i=1;i<=2;i++){const row=document.createElement('div');row.className='motor-row';const motorName=i===1?'刷鳞':'传送带';row.innerHTML=`<strong>M${i} ${motorName}</strong><input id="motor-speed-${i}" class="num-input" type="number" value="0" min="-100" max="100"><button class="btn btn-sky" data-motor="${i}" data-action="run">启动</button><button class="btn btn-slate" data-motor="${i}" data-action="stop">停止</button>`;motorList.appendChild(row)}motorList.addEventListener('click',e=>{const t=e.target;if(!t.dataset||!t.dataset.motor)return;const motorIndex=parseInt(t.dataset.motor,10);const input=$(`motor-speed-${motorIndex}`);const speed=t.dataset.action==='stop'?0:parseInt(input.value||'0',10);if(t.dataset.action==='stop')input.value='0';postAction('/api/action/send_motor',{motor_index:motorIndex,speed:speed})})}
+async function refreshCutSignals(){try{const res=await fetch('/api/status',{cache:'no-store'});const d=await res.json();$('limit-home-text').textContent=`回零限位：${d.limit_home_state===null?'--':(d.limit_home_state?'触发':'未触发')}`;$('limit-stop-text').textContent=`挡板限位：${d.limit_stop_state===null?'--':(d.limit_stop_state?'触发':'未触发')}`;$('cut-start-text').textContent=`切割起点：${d.cut_start_state===null?'--':(d.cut_start_state?'触发':'未触发')}`;$('cut-end-text').textContent=`切割终点：${d.cut_end_state===null?'--':(d.cut_end_state?'触发':'未触发')}`;$('limit-home-light').className=`limit-light ${d.limit_home_state?'on':''}`;$('limit-stop-light').className=`limit-light ${d.limit_stop_state?'on':''}`;$('cut-start-light').className=`limit-light ${d.cut_start_state?'on':''}`;$('cut-end-light').className=`limit-light ${d.cut_end_state?'on':''}`}catch(err){console.error(err)}}
+bindNav();bindSort();bindActions();refreshStatus();refreshCutSignals();setTimeout(refreshCutSignals,300);setInterval(refreshStatus,1500);setInterval(()=>setTimeout(refreshCutSignals,300),1500);
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.pyo
+
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+.venv/
+venv/
+
+config.json
+run_log.txt
+
+fish_workstation_snapshots/
+*.zip

@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+numpy
+opencv-python
+psutil
+pyserial
+picamera2
+ultralytics
